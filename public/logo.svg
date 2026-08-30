@@ -1,0 +1,236 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <!-- Background Radial Glow -->
+    <radialGradient id="bgGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#0A84FF" stop-opacity="0.3"/>
+      <stop offset="50%" stop-color="#00F0FF" stop-opacity="0.08"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Outer Shield Gradient -->
+    <linearGradient id="shieldBase" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1E293B"/>
+      <stop offset="40%" stop-color="#0F172A"/>
+      <stop offset="100%" stop-color="#020617"/>
+    </linearGradient>
+
+    <!-- Neon Rim Gradient -->
+    <linearGradient id="neonRim" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00F0FF"/>
+      <stop offset="35%" stop-color="#0A84FF"/>
+      <stop offset="70%" stop-color="#6366F1"/>
+      <stop offset="100%" stop-color="#A855F7"/>
+    </linearGradient>
+
+    <!-- Lock Metallic Body Gradient -->
+    <linearGradient id="lockBodyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1E293B"/>
+      <stop offset="50%" stop-color="#0F172A"/>
+      <stop offset="100%" stop-color="#070D18"/>
+    </linearGradient>
+
+    <!-- Lock Shackle Metallic Gradient -->
+    <linearGradient id="shackleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="25%" stop-color="#00F0FF"/>
+      <stop offset="70%" stop-color="#0A84FF"/>
+      <stop offset="100%" stop-color="#3B82F6"/>
+    </linearGradient>
+
+    <!-- Shackle Core Glow -->
+    <linearGradient id="shackleCore" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#E0F2FE"/>
+      <stop offset="100%" stop-color="#38BDF8"/>
+    </linearGradient>
+
+    <!-- Keyhole & Core Neon Gradient -->
+    <linearGradient id="keyholeGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="40%" stop-color="#00F0FF"/>
+      <stop offset="100%" stop-color="#0284C7"/>
+    </linearGradient>
+
+    <!-- Glass Reflection Highlight -->
+    <linearGradient id="glassSheen" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.4"/>
+      <stop offset="30%" stop-color="#FFFFFF" stop-opacity="0.12"/>
+      <stop offset="60%" stop-color="#FFFFFF" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#00F0FF" stop-opacity="0.08"/>
+    </linearGradient>
+
+    <!-- Glow Filter -->
+    <filter id="neonGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Drop Shadow Filter -->
+    <filter id="shieldShadow" x="-15%" y="-15%" width="130%" height="135%">
+      <feDropShadow dx="0" dy="14" stdDeviation="16" flood-color="#000000" flood-opacity="0.8"/>
+    </filter>
+  </defs>
+
+  <!-- Ambient Light Background -->
+  <circle cx="256" cy="256" r="230" fill="url(#bgGlow)"/>
+
+  <!-- ================= SHIELD SECTION ================= -->
+  <g filter="url(#shieldShadow)">
+    <!-- Outer Shield Contour -->
+    <path d="M 256,42 
+             L 434,96 
+             C 434,248 376,392 256,470 
+             C 136,392 78,248 78,96 
+             Z" 
+          fill="url(#shieldBase)" 
+          stroke="url(#neonRim)" 
+          stroke-width="7" 
+          stroke-linejoin="round"
+    />
+
+    <!-- Inner Shield Inset Plate -->
+    <path d="M 256,66 
+             L 410,114 
+             C 410,244 358,368 256,438 
+             C 154,368 102,244 102,114 
+             Z" 
+          fill="#0A0E1A" 
+          stroke="url(#neonRim)" 
+          stroke-width="2" 
+          stroke-opacity="0.4"
+    />
+
+    <!-- Diagonal Glass Sheen Reflection -->
+    <path d="M 256,66 
+             L 410,114 
+             C 410,185 398,255 365,310 
+             L 210,130 
+             L 256,66 
+             Z" 
+          fill="url(#glassSheen)"
+    />
+  </g>
+
+  <!-- Cyber Circuit Traces -->
+  <g opacity="0.35" stroke="#00F0FF" stroke-width="2" fill="none" stroke-linecap="round">
+    <path d="M 136,160 L 170,160 L 188,185 L 188,245" />
+    <circle cx="136" cy="160" r="3.5" fill="#00F0FF"/>
+
+    <path d="M 376,160 L 342,160 L 324,185 L 324,245" />
+    <circle cx="376" cy="160" r="3.5" fill="#00F0FF"/>
+
+    <path d="M 256,420 L 256,365" />
+    <circle cx="256" cy="420" r="3.5" fill="#00F0FF"/>
+  </g>
+
+  <!-- ================= MASTER PADLOCK SECTION ================= -->
+  <g filter="url(#neonGlow)">
+    <!-- 1. LOCK SHACKLE (Kilit Kulpu) -->
+    <!-- Shackle Outer Shadow / Outline -->
+    <path d="M 212,235 
+             L 212,185 
+             C 212,158 231.7,136 256,136 
+             C 280.3,136 300,158 300,185 
+             L 300,235" 
+          fill="none" 
+          stroke="#060A14" 
+          stroke-width="26" 
+          stroke-linecap="round"
+    />
+
+    <!-- Shackle Main Body -->
+    <path d="M 212,235 
+             L 212,185 
+             C 212,158 231.7,136 256,136 
+             C 280.3,136 300,158 300,185 
+             L 300,235" 
+          fill="none" 
+          stroke="url(#shackleGrad)" 
+          stroke-width="18" 
+          stroke-linecap="round"
+    />
+
+    <!-- Shackle Center Specular Line -->
+    <path d="M 212,230 
+             L 212,185 
+             C 212,161 231.7,142 256,142 
+             C 280.3,142 300,161 300,185 
+             L 300,230" 
+          fill="none" 
+          stroke="url(#shackleCore)" 
+          stroke-width="6" 
+          stroke-linecap="round" 
+          opacity="0.85"
+    />
+
+    <!-- 2. LOCK BODY (Kilit Gövdesi) -->
+    <!-- Padlock Outer Bevel -->
+    <rect x="176" y="215" width="160" height="130" rx="24" 
+          fill="url(#lockBodyGrad)" 
+          stroke="url(#neonRim)" 
+          stroke-width="5"
+    />
+
+    <!-- Padlock Inner Chamber Plate -->
+    <rect x="188" y="227" width="136" height="106" rx="16" 
+          fill="#080E1A" 
+          stroke="#00F0FF" 
+          stroke-width="1.5" 
+          stroke-opacity="0.5"
+    />
+
+    <!-- Top Metallic Accent Strip -->
+    <path d="M 194,228 L 318,228 C 324,228 324,242 318,242 L 194,242 C 188,242 188,228 194,228 Z" 
+          fill="#1E293B" 
+          opacity="0.9"
+    />
+
+    <!-- Horizontal Cyber Grooves (Sol ve Sağ Güvenlik Hatları) -->
+    <g stroke="url(#neonRim)" stroke-width="2.5" stroke-linecap="round" opacity="0.75">
+      <!-- Left Grooves -->
+      <line x1="198" y1="262" x2="222" y2="262"/>
+      <line x1="198" y1="280" x2="218" y2="280"/>
+      <line x1="198" y1="298" x2="222" y2="298"/>
+
+      <!-- Right Grooves -->
+      <line x1="290" y1="262" x2="314" y2="262"/>
+      <line x1="294" y1="280" x2="314" y2="280"/>
+      <line x1="290" y1="298" x2="314" y2="298"/>
+    </g>
+
+    <!-- Corner Rivets / Bolt Studs -->
+    <circle cx="200" cy="235" r="2.5" fill="#00F0FF" opacity="0.8"/>
+    <circle cx="312" cy="235" r="2.5" fill="#00F0FF" opacity="0.8"/>
+    <circle cx="200" cy="321" r="2.5" fill="#00F0FF" opacity="0.8"/>
+    <circle cx="312" cy="321" r="2.5" fill="#00F0FF" opacity="0.8"/>
+
+    <!-- 3. GLOWING CYBER KEYHOLE (Anahtar Deliği Çekirdeği) -->
+    <!-- Keyhole Outer Halo Plate -->
+    <circle cx="256" cy="275" r="26" fill="#030712" stroke="url(#neonRim)" stroke-width="2"/>
+
+    <!-- Keyhole Main Geometry -->
+    <!-- Upper Circle -->
+    <circle cx="256" cy="268" r="10.5" fill="url(#keyholeGrad)"/>
+    <!-- Lower Tapered Slot -->
+    <path d="M 251.5,274 
+             L 247.5,293 
+             C 247.5,296.5 264.5,296.5 264.5,293 
+             L 260.5,274 
+             Z" 
+          fill="url(#keyholeGrad)"
+    />
+
+    <!-- Glowing Intense White/Cyan Core Pulse -->
+    <circle cx="256" cy="268" r="4.5" fill="#FFFFFF"/>
+    <circle cx="256" cy="289" r="2.5" fill="#FFFFFF"/>
+  </g>
+
+  <!-- Top Security Binary Dots (.ENV Protection Matrix) -->
+  <g fill="#00F0FF" opacity="0.85">
+    <circle cx="226" cy="100" r="3"/>
+    <circle cx="256" cy="86" r="3.5" fill="#FFFFFF"/>
+    <circle cx="286" cy="100" r="3"/>
+  </g>
+</svg>

@@ -1,0 +1,453 @@
+/* ==========================================================================
+   Env Vault — 16 Renk Teması Tasarım Sistemi (8 Koyu + 8 Açık)
+   ========================================================================== */
+
+/* Varsayılan / Fallback Token'ları (Siyah OLED) */
+:root {
+  --app-bg: #0A0A0C;
+  --surface: #121216;
+  --surface-strong: #18181E;
+  --surface-subtle: rgba(255, 255, 255, 0.05);
+  --surface-hover: rgba(255, 255, 255, 0.08);
+  --surface-active: rgba(255, 255, 255, 0.12);
+  --text-primary: #F4F4F6;
+  --text-secondary: #9E9EA8;
+  --text-tertiary: #6E6E78;
+  --border: rgba(255, 255, 255, 0.10);
+  --border-subtle: rgba(255, 255, 255, 0.06);
+  --border-strong: rgba(255, 255, 255, 0.20);
+  --separator: rgba(255, 255, 255, 0.08);
+  --glass-bg: rgba(18, 18, 22, 0.85);
+  --glass-bg-strong: rgba(24, 24, 30, 0.96);
+  --glass-border: rgba(255, 255, 255, 0.12);
+  --input-bg: #141418;
+  --editor-bg: #0D0D10;
+  --editor-line-number: #5A5A66;
+  --accent: #0A84FF;
+  --accent-hover: #0077ED;
+  --accent-subtle: rgba(10, 132, 255, 0.14);
+}
+
+/* ==========================================================================
+   KOYU TEMALAR (DARK THEMES)
+   ========================================================================== */
+
+/* 1. Siyah (Deep Pure Black OLED + Electric Blue) */
+[data-theme="siyah"] {
+  --app-bg: #070709;
+  --surface: #101014;
+  --surface-strong: #17171C;
+  --surface-subtle: rgba(255, 255, 255, 0.04);
+  --surface-hover: rgba(255, 255, 255, 0.07);
+  --surface-active: rgba(255, 255, 255, 0.11);
+  --text-primary: #F8F9FA;
+  --text-secondary: #9FA2B0;
+  --text-tertiary: #6B6E7B;
+  --border: rgba(255, 255, 255, 0.09);
+  --border-subtle: rgba(255, 255, 255, 0.05);
+  --border-strong: rgba(255, 255, 255, 0.18);
+  --separator: rgba(255, 255, 255, 0.07);
+  --glass-bg: rgba(16, 16, 20, 0.88);
+  --glass-bg-strong: rgba(23, 23, 28, 0.96);
+  --glass-border: rgba(255, 255, 255, 0.11);
+  --input-bg: #131317;
+  --editor-bg: #0B0B0E;
+  --editor-line-number: #585A66;
+  --accent: #0A84FF;
+  --accent-hover: #0077ED;
+  --accent-subtle: rgba(10, 132, 255, 0.14);
+}
+
+/* 2. Koyu Gri (Slate Charcoal + Sky Blue) */
+[data-theme="koyu-gri"] {
+  --app-bg: #141518;
+  --surface: #1C1D22;
+  --surface-strong: #23252B;
+  --surface-subtle: rgba(255, 255, 255, 0.05);
+  --surface-hover: rgba(255, 255, 255, 0.08);
+  --surface-active: rgba(255, 255, 255, 0.12);
+  --text-primary: #F1F3F9;
+  --text-secondary: #9CA1AF;
+  --text-tertiary: #6B707F;
+  --border: rgba(255, 255, 255, 0.09);
+  --border-subtle: rgba(255, 255, 255, 0.05);
+  --border-strong: rgba(255, 255, 255, 0.18);
+  --separator: rgba(255, 255, 255, 0.07);
+  --glass-bg: rgba(28, 29, 34, 0.88);
+  --glass-bg-strong: rgba(35, 37, 43, 0.96);
+  --glass-border: rgba(255, 255, 255, 0.10);
+  --input-bg: #1F2026;
+  --editor-bg: #16171B;
+  --editor-line-number: #5E6373;
+  --accent: #38BDF8;
+  --accent-hover: #0EA5E9;
+  --accent-subtle: rgba(56, 189, 248, 0.14);
+}
+
+/* 3. Koyu Mavi (Midnight Navy + Cyan / Azure) */
+[data-theme="koyu-mavi"] {
+  --app-bg: #090E1A;
+  --surface: #10182B;
+  --surface-strong: #17223D;
+  --surface-subtle: rgba(0, 163, 255, 0.06);
+  --surface-hover: rgba(0, 163, 255, 0.10);
+  --surface-active: rgba(0, 163, 255, 0.15);
+  --text-primary: #F0F6FF;
+  --text-secondary: #93A6C8;
+  --text-tertiary: #5E749C;
+  --border: rgba(0, 163, 255, 0.14);
+  --border-subtle: rgba(0, 163, 255, 0.08);
+  --border-strong: rgba(0, 163, 255, 0.25);
+  --separator: rgba(0, 163, 255, 0.10);
+  --glass-bg: rgba(16, 24, 43, 0.88);
+  --glass-bg-strong: rgba(23, 34, 61, 0.96);
+  --glass-border: rgba(0, 163, 255, 0.16);
+  --input-bg: #131E36;
+  --editor-bg: #0C1322;
+  --editor-line-number: #53698F;
+  --accent: #00A3FF;
+  --accent-hover: #008FE0;
+  --accent-subtle: rgba(0, 163, 255, 0.14);
+}
+
+/* 4. Koyu Mor (Twilight Violet + Royal Lavender) */
+[data-theme="koyu-mor"] {
+  --app-bg: #0F0A1C;
+  --surface: #19122C;
+  --surface-strong: #231A3D;
+  --surface-subtle: rgba(168, 85, 247, 0.06);
+  --surface-hover: rgba(168, 85, 247, 0.10);
+  --surface-active: rgba(168, 85, 247, 0.15);
+  --text-primary: #FAF5FF;
+  --text-secondary: #BAA6D4;
+  --text-tertiary: #7D6B99;
+  --border: rgba(168, 85, 247, 0.14);
+  --border-subtle: rgba(168, 85, 247, 0.08);
+  --border-strong: rgba(168, 85, 247, 0.25);
+  --separator: rgba(168, 85, 247, 0.10);
+  --glass-bg: rgba(25, 18, 44, 0.88);
+  --glass-bg-strong: rgba(35, 26, 61, 0.96);
+  --glass-border: rgba(168, 85, 247, 0.16);
+  --input-bg: #1E1635;
+  --editor-bg: #120D22;
+  --editor-line-number: #695885;
+  --accent: #A855F7;
+  --accent-hover: #9333EA;
+  --accent-subtle: rgba(168, 85, 247, 0.14);
+}
+
+/* 5. Koyu Yeşil (Forest Emerald + Neon Jade) */
+[data-theme="koyu-yesil"] {
+  --app-bg: #08120D;
+  --surface: #0E2018;
+  --surface-strong: #152E22;
+  --surface-subtle: rgba(16, 185, 129, 0.06);
+  --surface-hover: rgba(16, 185, 129, 0.10);
+  --surface-active: rgba(16, 185, 129, 0.15);
+  --text-primary: #F0FDF4;
+  --text-secondary: #90BFA4;
+  --text-tertiary: #5A876F;
+  --border: rgba(16, 185, 129, 0.14);
+  --border-subtle: rgba(16, 185, 129, 0.08);
+  --border-strong: rgba(16, 185, 129, 0.25);
+  --separator: rgba(16, 185, 129, 0.10);
+  --glass-bg: rgba(14, 32, 24, 0.88);
+  --glass-bg-strong: rgba(21, 46, 34, 0.96);
+  --glass-border: rgba(16, 185, 129, 0.16);
+  --input-bg: #12271D;
+  --editor-bg: #0A1811;
+  --editor-line-number: #4D7A62;
+  --accent: #10B981;
+  --accent-hover: #059669;
+  --accent-subtle: rgba(16, 185, 129, 0.14);
+}
+
+/* 6. Koyu Kırmızı (Obsidian Crimson + Rose Ruby) */
+[data-theme="koyu-kirmizi"] {
+  --app-bg: #14090B;
+  --surface: #221013;
+  --surface-strong: #2F171B;
+  --surface-subtle: rgba(239, 68, 68, 0.06);
+  --surface-hover: rgba(239, 68, 68, 0.10);
+  --surface-active: rgba(239, 68, 68, 0.15);
+  --text-primary: #FFF1F2;
+  --text-secondary: #C89EA3;
+  --text-tertiary: #8C656A;
+  --border: rgba(239, 68, 68, 0.14);
+  --border-subtle: rgba(239, 68, 68, 0.08);
+  --border-strong: rgba(239, 68, 68, 0.25);
+  --separator: rgba(239, 68, 68, 0.10);
+  --glass-bg: rgba(34, 16, 19, 0.88);
+  --glass-bg-strong: rgba(47, 23, 27, 0.96);
+  --glass-border: rgba(239, 68, 68, 0.16);
+  --input-bg: #281317;
+  --editor-bg: #180B0D;
+  --editor-line-number: #7B5056;
+  --accent: #EF4444;
+  --accent-hover: #DC2626;
+  --accent-subtle: rgba(239, 68, 68, 0.14);
+}
+
+/* 7. Koyu Turuncu (Ember Bronze + Flame Amber) */
+[data-theme="koyu-turuncu"] {
+  --app-bg: #140C07;
+  --surface: #22140D;
+  --surface-strong: #2F1D13;
+  --surface-subtle: rgba(249, 115, 22, 0.06);
+  --surface-hover: rgba(249, 115, 22, 0.10);
+  --surface-active: rgba(249, 115, 22, 0.15);
+  --text-primary: #FFF7ED;
+  --text-secondary: #CBB09E;
+  --text-tertiary: #8F7464;
+  --border: rgba(249, 115, 22, 0.14);
+  --border-subtle: rgba(249, 115, 22, 0.08);
+  --border-strong: rgba(249, 115, 22, 0.25);
+  --separator: rgba(249, 115, 22, 0.10);
+  --glass-bg: rgba(34, 20, 13, 0.88);
+  --glass-bg-strong: rgba(47, 29, 19, 0.96);
+  --glass-border: rgba(249, 115, 22, 0.16);
+  --input-bg: #291810;
+  --editor-bg: #180E09;
+  --editor-line-number: #7D604E;
+  --accent: #F97316;
+  --accent-hover: #EA580C;
+  --accent-subtle: rgba(249, 115, 22, 0.14);
+}
+
+/* 8. Koyu Sarı (Deep Gold + Sunburst Amber) */
+[data-theme="koyu-sari"] {
+  --app-bg: #141207;
+  --surface: #221E0D;
+  --surface-strong: #2F2A13;
+  --surface-subtle: rgba(234, 179, 8, 0.06);
+  --surface-hover: rgba(234, 179, 8, 0.10);
+  --surface-active: rgba(234, 179, 8, 0.15);
+  --text-primary: #FEFCE8;
+  --text-secondary: #C8C09D;
+  --text-tertiary: #8C8463;
+  --border: rgba(234, 179, 8, 0.14);
+  --border-subtle: rgba(234, 179, 8, 0.08);
+  --border-strong: rgba(234, 179, 8, 0.25);
+  --separator: rgba(234, 179, 8, 0.10);
+  --glass-bg: rgba(34, 30, 13, 0.88);
+  --glass-bg-strong: rgba(47, 42, 19, 0.96);
+  --glass-border: rgba(234, 179, 8, 0.16);
+  --input-bg: #292410;
+  --editor-bg: #181509;
+  --editor-line-number: #7B734D;
+  --accent: #EAB308;
+  --accent-hover: #CA8A04;
+  --accent-subtle: rgba(234, 179, 8, 0.14);
+}
+
+/* ==========================================================================
+   ACIK TEMALAR (LIGHT THEMES)
+   ========================================================================== */
+
+/* 9. Beyaz (Pure Clean White + Electric Blue) */
+[data-theme="beyaz"] {
+  --app-bg: #FFFFFF;
+  --surface: #F8FAFC;
+  --surface-strong: #F1F5F9;
+  --surface-subtle: rgba(0, 0, 0, 0.03);
+  --surface-hover: rgba(0, 0, 0, 0.06);
+  --surface-active: rgba(0, 0, 0, 0.09);
+  --text-primary: #0F172A;
+  --text-secondary: #475569;
+  --text-tertiary: #94A3B8;
+  --border: rgba(0, 0, 0, 0.09);
+  --border-subtle: rgba(0, 0, 0, 0.05);
+  --border-strong: rgba(0, 0, 0, 0.18);
+  --separator: rgba(0, 0, 0, 0.07);
+  --glass-bg: rgba(248, 250, 252, 0.88);
+  --glass-bg-strong: rgba(241, 245, 249, 0.96);
+  --glass-border: rgba(0, 0, 0, 0.08);
+  --input-bg: #FFFFFF;
+  --editor-bg: #FAFBFC;
+  --editor-line-number: #94A3B8;
+  --accent: #0A84FF;
+  --accent-hover: #0077ED;
+  --accent-subtle: rgba(10, 132, 255, 0.12);
+}
+
+/* 10. Açık Gri (Soft Neutral Silver + Slate) */
+[data-theme="acik-gri"] {
+  --app-bg: #F3F4F6;
+  --surface: #FFFFFF;
+  --surface-strong: #E5E7EB;
+  --surface-subtle: rgba(0, 0, 0, 0.03);
+  --surface-hover: rgba(0, 0, 0, 0.06);
+  --surface-active: rgba(0, 0, 0, 0.09);
+  --text-primary: #111827;
+  --text-secondary: #4B5563;
+  --text-tertiary: #9CA3AF;
+  --border: rgba(0, 0, 0, 0.09);
+  --border-subtle: rgba(0, 0, 0, 0.05);
+  --border-strong: rgba(0, 0, 0, 0.18);
+  --separator: rgba(0, 0, 0, 0.07);
+  --glass-bg: rgba(255, 255, 255, 0.88);
+  --glass-bg-strong: rgba(229, 231, 235, 0.96);
+  --glass-border: rgba(0, 0, 0, 0.08);
+  --input-bg: #FFFFFF;
+  --editor-bg: #F9FAFB;
+  --editor-line-number: #9CA3AF;
+  --accent: #4B5563;
+  --accent-hover: #374151;
+  --accent-subtle: rgba(75, 85, 99, 0.12);
+}
+
+/* 11. Açık Mavi (Breeze Azure + Ocean Cyan) */
+[data-theme="acik-mavi"] {
+  --app-bg: #F0F9FF;
+  --surface: #FFFFFF;
+  --surface-strong: #E0F2FE;
+  --surface-subtle: rgba(2, 132, 199, 0.04);
+  --surface-hover: rgba(2, 132, 199, 0.08);
+  --surface-active: rgba(2, 132, 199, 0.12);
+  --text-primary: #082F49;
+  --text-secondary: #0369A1;
+  --text-tertiary: #7DD3FC;
+  --border: rgba(2, 132, 199, 0.12);
+  --border-subtle: rgba(2, 132, 199, 0.06);
+  --border-strong: rgba(2, 132, 199, 0.22);
+  --separator: rgba(2, 132, 199, 0.08);
+  --glass-bg: rgba(255, 255, 255, 0.88);
+  --glass-bg-strong: rgba(224, 242, 254, 0.96);
+  --glass-border: rgba(2, 132, 199, 0.12);
+  --input-bg: #FFFFFF;
+  --editor-bg: #F8FCFF;
+  --editor-line-number: #7DD3FC;
+  --accent: #0284C7;
+  --accent-hover: #0369A1;
+  --accent-subtle: rgba(2, 132, 199, 0.12);
+}
+
+/* 12. Açık Mor (Pastel Lilac + Royal Violet) */
+[data-theme="acik-mor"] {
+  --app-bg: #FAF5FF;
+  --surface: #FFFFFF;
+  --surface-strong: #F3E8FF;
+  --surface-subtle: rgba(147, 51, 234, 0.04);
+  --surface-hover: rgba(147, 51, 234, 0.08);
+  --surface-active: rgba(147, 51, 234, 0.12);
+  --text-primary: #3B0764;
+  --text-secondary: #7E22CE;
+  --text-tertiary: #C084FC;
+  --border: rgba(147, 51, 234, 0.12);
+  --border-subtle: rgba(147, 51, 234, 0.06);
+  --border-strong: rgba(147, 51, 234, 0.22);
+  --separator: rgba(147, 51, 234, 0.08);
+  --glass-bg: rgba(255, 255, 255, 0.88);
+  --glass-bg-strong: rgba(243, 232, 255, 0.96);
+  --glass-border: rgba(147, 51, 234, 0.12);
+  --input-bg: #FFFFFF;
+  --editor-bg: #FCF9FF;
+  --editor-line-number: #C084FC;
+  --accent: #9333EA;
+  --accent-hover: #7E22CE;
+  --accent-subtle: rgba(147, 51, 234, 0.12);
+}
+
+/* 13. Açık Yeşil (Fresh Mint + Forest Green) */
+[data-theme="acik-yesil"] {
+  --app-bg: #F0FDF4;
+  --surface: #FFFFFF;
+  --surface-strong: #DCFCE7;
+  --surface-subtle: rgba(22, 163, 74, 0.04);
+  --surface-hover: rgba(22, 163, 74, 0.08);
+  --surface-active: rgba(22, 163, 74, 0.12);
+  --text-primary: #052E16;
+  --text-secondary: #15803D;
+  --text-tertiary: #86EFAC;
+  --border: rgba(22, 163, 74, 0.12);
+  --border-subtle: rgba(22, 163, 74, 0.06);
+  --border-strong: rgba(22, 163, 74, 0.22);
+  --separator: rgba(22, 163, 74, 0.08);
+  --glass-bg: rgba(255, 255, 255, 0.88);
+  --glass-bg-strong: rgba(220, 252, 231, 0.96);
+  --glass-border: rgba(22, 163, 74, 0.12);
+  --input-bg: #FFFFFF;
+  --editor-bg: #F8FDF9;
+  --editor-line-number: #86EFAC;
+  --accent: #16A34A;
+  --accent-hover: #15803D;
+  --accent-subtle: rgba(22, 163, 74, 0.12);
+}
+
+/* 14. Açık Kırmızı (Soft Rose + Crimson) */
+[data-theme="acik-kirmizi"] {
+  --app-bg: #FFF1F2;
+  --surface: #FFFFFF;
+  --surface-strong: #FFE4E6;
+  --surface-subtle: rgba(225, 29, 72, 0.04);
+  --surface-hover: rgba(225, 29, 72, 0.08);
+  --surface-active: rgba(225, 29, 72, 0.12);
+  --text-primary: #4C0519;
+  --text-secondary: #BE123C;
+  --text-tertiary: #FDA4AF;
+  --border: rgba(225, 29, 72, 0.12);
+  --border-subtle: rgba(225, 29, 72, 0.06);
+  --border-strong: rgba(225, 29, 72, 0.22);
+  --separator: rgba(225, 29, 72, 0.08);
+  --glass-bg: rgba(255, 255, 255, 0.88);
+  --glass-bg-strong: rgba(255, 228, 230, 0.96);
+  --glass-border: rgba(225, 29, 72, 0.12);
+  --input-bg: #FFFFFF;
+  --editor-bg: #FFFAFA;
+  --editor-line-number: #FDA4AF;
+  --accent: #E11D48;
+  --accent-hover: #BE123C;
+  --accent-subtle: rgba(225, 29, 72, 0.12);
+}
+
+/* 15. Açık Turuncu (Warm Peach + Tangerine) */
+[data-theme="acik-turuncu"] {
+  --app-bg: #FFF7ED;
+  --surface: #FFFFFF;
+  --surface-strong: #FFEDD5;
+  --surface-subtle: rgba(234, 88, 12, 0.04);
+  --surface-hover: rgba(234, 88, 12, 0.08);
+  --surface-active: rgba(234, 88, 12, 0.12);
+  --text-primary: #431407;
+  --text-secondary: #C2410C;
+  --text-tertiary: #FDBA74;
+  --border: rgba(234, 88, 12, 0.12);
+  --border-subtle: rgba(234, 88, 12, 0.06);
+  --border-strong: rgba(234, 88, 12, 0.22);
+  --separator: rgba(234, 88, 12, 0.08);
+  --glass-bg: rgba(255, 255, 255, 0.88);
+  --glass-bg-strong: rgba(255, 237, 213, 0.96);
+  --glass-border: rgba(234, 88, 12, 0.12);
+  --input-bg: #FFFFFF;
+  --editor-bg: #FFFBF7;
+  --editor-line-number: #FDBA74;
+  --accent: #EA580C;
+  --accent-hover: #C2410C;
+  --accent-subtle: rgba(234, 88, 12, 0.12);
+}
+
+/* 16. Açık Sarı (Pale Cream + Warm Honey Gold) */
+[data-theme="acik-sari"] {
+  --app-bg: #FEFCE8;
+  --surface: #FFFFFF;
+  --surface-strong: #FEF9C3;
+  --surface-subtle: rgba(202, 138, 4, 0.04);
+  --surface-hover: rgba(202, 138, 4, 0.08);
+  --surface-active: rgba(202, 138, 4, 0.12);
+  --text-primary: #422006;
+  --text-secondary: #A16207;
+  --text-tertiary: #FDE047;
+  --border: rgba(202, 138, 4, 0.12);
+  --border-subtle: rgba(202, 138, 4, 0.06);
+  --border-strong: rgba(202, 138, 4, 0.22);
+  --separator: rgba(202, 138, 4, 0.08);
+  --glass-bg: rgba(255, 255, 255, 0.88);
+  --glass-bg-strong: rgba(254, 249, 195, 0.96);
+  --glass-border: rgba(202, 138, 4, 0.12);
+  --input-bg: #FFFFFF;
+  --editor-bg: #FFFEF9;
+  --editor-line-number: #EAB308;
+  --accent: #CA8A04;
+  --accent-hover: #A16207;
+  --accent-subtle: rgba(202, 138, 4, 0.12);
+}
