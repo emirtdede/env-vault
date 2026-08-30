@@ -18,8 +18,8 @@ header_canvas = Image.new("RGBA", (150, 57), (255, 255, 255, 255))
 header_icon_size = 48
 header_icon = icon_master.resize((header_icon_size, header_icon_size), Image.Resampling.LANCZOS)
 
-# Position icon on the right with a clean 10px margin
-icon_x = 150 - header_icon_size - 10
+# Position icon on the far left with a crisp 4px margin
+icon_x = 4
 icon_y = (57 - header_icon_size) // 2
 
 header_canvas.alpha_composite(header_icon, (icon_x, icon_y))

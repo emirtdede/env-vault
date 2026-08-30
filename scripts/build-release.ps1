@@ -39,10 +39,34 @@ if ($LASTEXITCODE -ne 0) {
 Set-Location $rootDir
 
 Write-Host "[4/6] Tauri Production Build Alınıyor (NSIS + MSI + Standalone)..." -ForegroundColor Yellow
+python (Join-Path $rootDir "scripts\generate-nsis-assets.py")
 npx @tauri-apps/cli build
 if ($LASTEXITCODE -ne 0) {
     Write-Host "[HATA] Tauri derleme işlemi başarısız!" -ForegroundColor Red
     exit 1
+}
+
+# NSIS Uninstaller İkon & Başlık Yaması
+$nsiScript = Join-Path $rootDir "src-tauri\target\release\nsis\x64\installer.nsi"
+$iconPath = Join-Path $rootDir "src-tauri\icons\icon.ico"
+$headerPath = Join-Path $rootDir "src-tauri\icons\nsis-header.bmp"
+$makensisExe = "C:\Users\emir\AppData\Local\tauri\NSIS\makensis.exe"
+
+if (Test-Path $nsiScript) {
+    Write-Host "NSIS Kaldırma İkonu ve Başlığı Entegre Ediliyor..." -ForegroundColor Cyan
+    $nsiContent = [System.IO.File]::ReadAllText($nsiScript, [System.Text.Encoding]::UTF8)
+    $nsiContent = $nsiContent.Replace('!define UNINSTALLERICON ""', "!define UNINSTALLERICON `"$iconPath`"")
+    $nsiContent = $nsiContent.Replace('!define UNINSTALLERHEADERIMAGE ""', "!define UNINSTALLERHEADERIMAGE `"$headerPath`"")
+    [System.IO.File]::WriteAllText($nsiScript, $nsiContent, [System.Text.Encoding]::UTF8)
+
+    if (Test-Path $makensisExe) {
+        & $makensisExe $nsiScript
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "[UYARI] NSIS yeniden paketleme başarısız oldu, varsayılan paket kullanılacak." -ForegroundColor Yellow
+        } else {
+            Write-Host "NSIS Kurulum ve Kaldırma Paketi Başarıyla Güncellendi!" -ForegroundColor Green
+        }
+    }
 }
 
 Write-Host "[5/6] Release Paketleri Hazırlanıyor..." -ForegroundColor Yellow
