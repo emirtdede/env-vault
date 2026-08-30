@@ -10,19 +10,12 @@ print("Generating high-fidelity NSIS Header (150x57) and Sidebar (164x314) bitma
 icon_master = Image.open(ICON_PNG_PATH).convert("RGBA")
 
 # ==============================================================================
-# 1. NSIS HEADER BITMAP (150x57 px, Pure White Background #FFFFFF)
+# 1. NSIS HEADER BITMAP (48x48 px, Pure White Background #FFFFFF)
 # ==============================================================================
-# NSIS header background is pure white (#FFFFFF). 
-# We place a 48x48 icon on the far right of the 150x57 canvas.
-header_canvas = Image.new("RGBA", (150, 57), (255, 255, 255, 255))
 header_icon_size = 48
+header_canvas = Image.new("RGBA", (header_icon_size, header_icon_size), (255, 255, 255, 255))
 header_icon = icon_master.resize((header_icon_size, header_icon_size), Image.Resampling.LANCZOS)
-
-# Position icon on the far left with a crisp 4px margin
-icon_x = 4
-icon_y = (57 - header_icon_size) // 2
-
-header_canvas.alpha_composite(header_icon, (icon_x, icon_y))
+header_canvas.alpha_composite(header_icon, (0, 0))
 header_bmp = header_canvas.convert("RGB")
 
 header_target = os.path.join(ICONS_DIR, "nsis-header.bmp")

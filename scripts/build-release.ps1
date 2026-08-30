@@ -46,25 +46,21 @@ if ($LASTEXITCODE -ne 0) {
     exit 1
 }
 
-# NSIS Uninstaller İkon & Başlık Yaması
+# NSIS Başlık Hizalaması & Uninstaller İkon Yaması
+$patchScript = Join-Path $rootDir "scripts\patch-nsis.py"
 $nsiScript = Join-Path $rootDir "src-tauri\target\release\nsis\x64\installer.nsi"
-$iconPath = Join-Path $rootDir "src-tauri\icons\icon.ico"
-$headerPath = Join-Path $rootDir "src-tauri\icons\nsis-header.bmp"
 $makensisExe = "C:\Users\emir\AppData\Local\tauri\NSIS\makensis.exe"
 
 if (Test-Path $nsiScript) {
-    Write-Host "NSIS Kaldırma İkonu ve Başlığı Entegre Ediliyor..." -ForegroundColor Cyan
-    $nsiContent = [System.IO.File]::ReadAllText($nsiScript, [System.Text.Encoding]::UTF8)
-    $nsiContent = $nsiContent.Replace('!define UNINSTALLERICON ""', "!define UNINSTALLERICON `"$iconPath`"")
-    $nsiContent = $nsiContent.Replace('!define UNINSTALLERHEADERIMAGE ""', "!define UNINSTALLERHEADERIMAGE `"$headerPath`"")
-    [System.IO.File]::WriteAllText($nsiScript, $nsiContent, [System.Text.Encoding]::UTF8)
+    Write-Host "NSIS Başlık Hizalaması ve Kaldırma İkonu Entegre Ediliyor..." -ForegroundColor Cyan
+    python $patchScript
 
     if (Test-Path $makensisExe) {
         & $makensisExe $nsiScript
         if ($LASTEXITCODE -ne 0) {
             Write-Host "[UYARI] NSIS yeniden paketleme başarısız oldu, varsayılan paket kullanılacak." -ForegroundColor Yellow
         } else {
-            Write-Host "NSIS Kurulum ve Kaldırma Paketi Başarıyla Güncellendi!" -ForegroundColor Green
+            Write-Host "NSIS Kurulum ve Kaldırma Paketi Kusursuz Hizalama ile Güncellendi!" -ForegroundColor Green
         }
     }
 }
