@@ -31,12 +31,12 @@ export const BackupModal: React.FC = () => {
 
       const now = new Date();
       const dateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
-      const defaultFilename = `EnvVault-${dateStr}.evault`;
+      const defaultFilename = `EnvVault-${dateStr}.vaultbak`;
 
       const { save } = await import("@tauri-apps/plugin-dialog");
       const selected = await save({
         defaultPath: defaultFilename,
-        filters: [{ name: language === "tr" ? "Env Vault Yedeği (*.evault)" : "Env Vault Backup (*.evault)", extensions: ["evault"] }],
+        filters: [{ name: language === "tr" ? "Env Vault Yedeği (*.vaultbak, *.evault)" : "Env Vault Backup (*.vaultbak, *.evault)", extensions: ["vaultbak", "evault"] }],
       });
 
       if (!selected) {

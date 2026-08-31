@@ -28,7 +28,7 @@ export const RestoreModal: React.FC = () => {
       const { open } = await import("@tauri-apps/plugin-dialog");
       const selected = await open({
         multiple: false,
-        filters: [{ name: language === "tr" ? "Env Vault Yedeği (*.evault)" : "Env Vault Backup (*.evault)", extensions: ["evault"] }],
+        filters: [{ name: language === "tr" ? "Env Vault Yedeği (*.vaultbak, *.evault)" : "Env Vault Backup (*.vaultbak, *.evault)", extensions: ["vaultbak", "evault"] }],
       });
 
       if (selected && typeof selected === "string") {
