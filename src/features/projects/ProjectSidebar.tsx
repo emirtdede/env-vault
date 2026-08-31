@@ -1,18 +1,15 @@
 import React, { useState } from "react";
 import {
   Folder,
+
   FolderPlus,
   Star,
-  Lock,
-  Settings,
-  Archive,
   FilePlus,
   FolderDown,
   Pencil,
   Trash2,
 } from "lucide-react";
 import { useProjectStore } from "../../stores/useProjectStore";
-import { useVaultSessionStore } from "../../stores/useVaultSessionStore";
 import { useDialogStore } from "../../stores/useDialogStore";
 import { IconButton } from "../../components/primitives/IconButton";
 import { SearchField } from "../../components/primitives/SearchField";
@@ -30,13 +27,11 @@ export const ProjectSidebar: React.FC = () => {
   const toggleFavorite = useProjectStore((s) => s.toggleFavorite);
   const deleteProject = useProjectStore((s) => s.deleteProject);
 
-  const lockVault = useVaultSessionStore((s) => s.lock);
   const openCreateProject = useDialogStore((s) => s.openCreateProject);
   const openEditProject = useDialogStore((s) => s.openEditProject);
   const openAddEnv = useDialogStore((s) => s.openAddEnv);
-  const openSettings = useDialogStore((s) => s.openSettings);
-  const openBackup = useDialogStore((s) => s.openBackup);
   const showConfirm = useDialogStore((s) => s.showConfirm);
+
 
   const [contextMenu, setContextMenu] = useState<{
     x: number;
@@ -378,43 +373,7 @@ export const ProjectSidebar: React.FC = () => {
           onClose={() => setNavContextMenu(null)}
         />
       )}
-
-      {/* Sidebar Footer Controls */}
-      <footer
-        style={{
-          padding: "var(--space-3) var(--space-4)",
-          borderTop: "1px solid var(--border)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          backgroundColor: "var(--surface-subtle)",
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: "var(--space-1)" }}>
-          <IconButton
-            icon={<Settings size={16} />}
-            aria-label={t("sidebar.settings")}
-            title={t("sidebar.settings")}
-            size="sm"
-            onClick={openSettings}
-          />
-          <IconButton
-            icon={<Archive size={16} />}
-            aria-label={language === "tr" ? "Yedekleme ve Geri Yükleme" : "Backup & Restore"}
-            title={language === "tr" ? "Yedekleme ve Geri Yükleme" : "Backup & Restore"}
-            size="sm"
-            onClick={openBackup}
-          />
-        </div>
-        <IconButton
-          icon={<Lock size={16} />}
-          aria-label={t("sidebar.lockVault")}
-          title={t("sidebar.lockVault")}
-          size="sm"
-          variant="subtle"
-          onClick={lockVault}
-        />
-      </footer>
     </aside>
   );
 };
+

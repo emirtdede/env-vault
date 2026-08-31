@@ -175,6 +175,7 @@ pub fn run() {
             hide_to_tray,
             show_from_tray,
             exit_application,
+            open_external_url,
         ])
         .run(tauri::generate_context!())
         .expect("Env Vault başlatılırken beklenmeyen bir hata oluştu");

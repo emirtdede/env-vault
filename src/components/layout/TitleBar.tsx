@@ -9,15 +9,20 @@ import {
   Moon,
   Sun,
   Check,
+  Settings,
+  Lock,
 } from "lucide-react";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { usePreferencesStore } from "../../stores/usePreferencesStore";
 import { useDialogStore } from "../../stores/useDialogStore";
+import { useVaultSessionStore } from "../../stores/useVaultSessionStore";
 import { Language, ThemeType } from "../../types";
 import { settingsApi } from "../../lib/tauri/settings-api";
 import { windowApi } from "../../lib/tauri/window-api";
 import { Logo } from "../brand/Logo";
+import { VelliumLogo } from "../brand/VelliumLogo";
 import { useTranslation } from "../../i18n";
+
 
 interface ThemeOption {
   id: ThemeType;
@@ -55,6 +60,13 @@ export const TitleBar: React.FC = () => {
   const setTheme = usePreferencesStore((s) => s.setTheme);
   const closeAction = usePreferencesStore((s) => s.closeAction);
   const openCloseAction = useDialogStore((s) => s.openCloseAction);
+  const openSettings = useDialogStore((s) => s.openSettings);
+  const openAboutVellium = useDialogStore((s) => s.openAboutVellium);
+  const lockVault = useVaultSessionStore((s) => s.lock);
+  const vaultState = useVaultSessionStore((s) => s.state);
+
+
+
 
   const [isThemeMenuOpen, setIsThemeMenuOpen] = useState(false);
   const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
@@ -270,24 +282,29 @@ export const TitleBar: React.FC = () => {
               padding: 0,
               borderRadius: "6px",
               backgroundColor: isThemeMenuOpen ? "var(--surface-active)" : "var(--surface-subtle)",
-              color: "var(--text-primary)",
-              border: "1px solid var(--border)",
+              color: isThemeMenuOpen ? "var(--accent)" : "var(--text-secondary)",
+              border: isThemeMenuOpen ? "1px solid var(--accent)" : "1px solid var(--border)",
               cursor: "pointer",
               transition: "all 0.15s ease",
             }}
             onMouseEnter={(e) => {
               if (!isThemeMenuOpen) {
                 (e.currentTarget as HTMLElement).style.backgroundColor = "var(--surface-hover)";
+                (e.currentTarget as HTMLElement).style.color = "var(--accent)";
+                (e.currentTarget as HTMLElement).style.borderColor = "var(--accent)";
               }
             }}
             onMouseLeave={(e) => {
               if (!isThemeMenuOpen) {
                 (e.currentTarget as HTMLElement).style.backgroundColor = "var(--surface-subtle)";
+                (e.currentTarget as HTMLElement).style.color = "var(--text-secondary)";
+                (e.currentTarget as HTMLElement).style.borderColor = "var(--border)";
               }
             }}
           >
-            <Palette size={14} style={{ color: "var(--accent)" }} />
+            <Palette size={14} />
           </button>
+
 
           {/* Theme Dropdown Menu */}
           {isThemeMenuOpen && (
@@ -461,7 +478,7 @@ export const TitleBar: React.FC = () => {
         </div>
 
         {/* Quick Language Switcher Button */}
-        <div style={{ position: "relative", marginRight: "4px" }} ref={langMenuRef}>
+        <div style={{ position: "relative" }} ref={langMenuRef}>
           <button
             type="button"
             data-tauri-drag-region="false"
@@ -482,23 +499,27 @@ export const TitleBar: React.FC = () => {
               padding: 0,
               borderRadius: "6px",
               backgroundColor: isLangMenuOpen ? "var(--surface-active)" : "var(--surface-subtle)",
-              color: "var(--text-primary)",
-              border: "1px solid var(--border)",
+              color: isLangMenuOpen ? "var(--accent)" : "var(--text-secondary)",
+              border: isLangMenuOpen ? "1px solid var(--accent)" : "1px solid var(--border)",
               cursor: "pointer",
               transition: "all 0.15s ease",
             }}
             onMouseEnter={(e) => {
               if (!isLangMenuOpen) {
                 (e.currentTarget as HTMLElement).style.backgroundColor = "var(--surface-hover)";
+                (e.currentTarget as HTMLElement).style.color = "var(--accent)";
+                (e.currentTarget as HTMLElement).style.borderColor = "var(--accent)";
               }
             }}
             onMouseLeave={(e) => {
               if (!isLangMenuOpen) {
                 (e.currentTarget as HTMLElement).style.backgroundColor = "var(--surface-subtle)";
+                (e.currentTarget as HTMLElement).style.color = "var(--text-secondary)";
+                (e.currentTarget as HTMLElement).style.borderColor = "var(--border)";
               }
             }}
           >
-            <Globe size={14} style={{ color: "var(--accent)" }} />
+            <Globe size={14} />
           </button>
 
           {/* Language Dropdown Menu */}
@@ -604,7 +625,139 @@ export const TitleBar: React.FC = () => {
           )}
         </div>
 
+        {/* Vellium Brand Button -> opens Vellium about modal */}
+        <button
+          type="button"
+          data-tauri-drag-region="false"
+          onMouseDown={(e) => e.stopPropagation()}
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsThemeMenuOpen(false);
+            setIsLangMenuOpen(false);
+            openAboutVellium();
+          }}
+          title={language === "tr" ? "Vellium Hakkında" : "About Vellium"}
+          aria-label={language === "tr" ? "Vellium Hakkında" : "About Vellium"}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            width: "28px",
+            height: "28px",
+            padding: 0,
+            borderRadius: "6px",
+            backgroundColor: "var(--surface-subtle)",
+            color: "var(--text-secondary)",
+            border: "1px solid var(--border)",
+            cursor: "pointer",
+            marginRight: vaultState !== "unlocked" ? "4px" : "0",
+            transition: "all 0.15s ease",
+          }}
+          onMouseEnter={(e) => {
+            (e.currentTarget as HTMLElement).style.backgroundColor = "var(--surface-hover)";
+            (e.currentTarget as HTMLElement).style.color = "var(--accent)";
+            (e.currentTarget as HTMLElement).style.borderColor = "var(--accent)";
+          }}
+          onMouseLeave={(e) => {
+            (e.currentTarget as HTMLElement).style.backgroundColor = "var(--surface-subtle)";
+            (e.currentTarget as HTMLElement).style.color = "var(--text-secondary)";
+            (e.currentTarget as HTMLElement).style.borderColor = "var(--border)";
+          }}
+        >
+          <VelliumLogo size={16} showText={false} />
+        </button>
+
+        {/* Settings & Lock Buttons - Only visible when user is logged in (vault unlocked) */}
+        {vaultState === "unlocked" && (
+          <>
+            {/* Settings Button */}
+            <button
+              type="button"
+              data-tauri-drag-region="false"
+              onMouseDown={(e) => e.stopPropagation()}
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsThemeMenuOpen(false);
+                setIsLangMenuOpen(false);
+                openSettings("main");
+              }}
+              title={t("settings.title")}
+              aria-label={t("settings.title")}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: "28px",
+                height: "28px",
+                padding: 0,
+                borderRadius: "6px",
+                backgroundColor: "var(--surface-subtle)",
+                color: "var(--text-secondary)",
+                border: "1px solid var(--border)",
+                cursor: "pointer",
+                transition: "all 0.15s ease",
+              }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLElement).style.backgroundColor = "var(--surface-hover)";
+                (e.currentTarget as HTMLElement).style.color = "var(--accent)";
+                (e.currentTarget as HTMLElement).style.borderColor = "var(--accent)";
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLElement).style.backgroundColor = "var(--surface-subtle)";
+                (e.currentTarget as HTMLElement).style.color = "var(--text-secondary)";
+                (e.currentTarget as HTMLElement).style.borderColor = "var(--border)";
+              }}
+            >
+              <Settings size={14} />
+            </button>
+
+            {/* Lock Vault Button */}
+            <button
+              type="button"
+              data-tauri-drag-region="false"
+              onMouseDown={(e) => e.stopPropagation()}
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsThemeMenuOpen(false);
+                setIsLangMenuOpen(false);
+                lockVault();
+              }}
+              title={t("sidebar.lockVault")}
+              aria-label={t("sidebar.lockVault")}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: "28px",
+                height: "28px",
+                padding: 0,
+                borderRadius: "6px",
+                backgroundColor: "var(--surface-subtle)",
+                color: "var(--text-secondary)",
+                border: "1px solid var(--border)",
+                cursor: "pointer",
+                marginRight: "4px",
+                transition: "all 0.15s ease",
+              }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLElement).style.backgroundColor = "var(--surface-hover)";
+                (e.currentTarget as HTMLElement).style.color = "var(--warning, #F59E0B)";
+                (e.currentTarget as HTMLElement).style.borderColor = "var(--warning, #F59E0B)";
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLElement).style.backgroundColor = "var(--surface-subtle)";
+                (e.currentTarget as HTMLElement).style.color = "var(--text-secondary)";
+                (e.currentTarget as HTMLElement).style.borderColor = "var(--border)";
+              }}
+            >
+              <Lock size={14} />
+            </button>
+          </>
+        )}
+
+
         {/* Windows Standard Controls: Minimize, Maximize/Restore, Close */}
+
         <div
           className="no-drag"
           data-tauri-drag-region="false"

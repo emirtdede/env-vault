@@ -1,6 +1,8 @@
 import { create } from "zustand";
 import { Project } from "../types";
 
+export type SettingsViewType = "main" | "privacy" | "terms" | "security" | "licenses" | "about-vellium";
+
 export interface ConfirmDialogOptions {
   title: string;
   message: string;
@@ -19,6 +21,7 @@ interface DialogStoreState {
   isCreateProjectOpen: boolean;
   isAddEnvOpen: boolean;
   isSettingsOpen: boolean;
+  settingsInitialView: SettingsViewType;
   isBackupOpen: boolean;
   isRestoreOpen: boolean;
   isChangePasswordOpen: boolean;
@@ -33,7 +36,8 @@ interface DialogStoreState {
   openAddEnv: () => void;
   closeAddEnv: () => void;
 
-  openSettings: () => void;
+  openSettings: (view?: SettingsViewType) => void;
+  openAboutVellium: () => void;
   closeSettings: () => void;
 
   openBackup: () => void;
@@ -62,6 +66,7 @@ export const useDialogStore = create<DialogStoreState>((set) => ({
   isCreateProjectOpen: false,
   isAddEnvOpen: false,
   isSettingsOpen: false,
+  settingsInitialView: "main",
   isBackupOpen: false,
   isRestoreOpen: false,
   isChangePasswordOpen: false,
@@ -76,8 +81,9 @@ export const useDialogStore = create<DialogStoreState>((set) => ({
   openAddEnv: () => set({ isAddEnvOpen: true }),
   closeAddEnv: () => set({ isAddEnvOpen: false }),
 
-  openSettings: () => set({ isSettingsOpen: true }),
-  closeSettings: () => set({ isSettingsOpen: false }),
+  openSettings: (view = "main") => set({ isSettingsOpen: true, settingsInitialView: view }),
+  openAboutVellium: () => set({ isSettingsOpen: true, settingsInitialView: "about-vellium" }),
+  closeSettings: () => set({ isSettingsOpen: false, settingsInitialView: "main" }),
 
   openBackup: () => set({ isBackupOpen: true }),
   closeBackup: () => set({ isBackupOpen: false }),
