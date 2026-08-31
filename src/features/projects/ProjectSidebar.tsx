@@ -46,7 +46,7 @@ export const ProjectSidebar: React.FC = () => {
     y: number;
   } | null>(null);
 
-  // Sort favorites first, then alphabetically with useMemo
+  // Sort favorites first, then sortOrder, then alphabetically with useMemo
   const sortedProjects = React.useMemo(() => {
     const query = searchQuery.toLowerCase().trim();
     const filtered = query
@@ -54,12 +54,17 @@ export const ProjectSidebar: React.FC = () => {
       : projects;
 
     return [...filtered].sort((a, b) => {
-      if (a.favorite === b.favorite) {
-        return a.name.localeCompare(b.name, language);
+      if (a.favorite !== b.favorite) {
+        return a.favorite ? -1 : 1;
       }
-      return a.favorite ? -1 : 1;
+      if (a.sortOrder != null && b.sortOrder != null && a.sortOrder !== b.sortOrder) {
+        return a.sortOrder - b.sortOrder;
+      }
+      return a.name.localeCompare(b.name, language);
     });
   }, [projects, searchQuery, language]);
+
+
 
   const getProjectMenuItems = (project: Project): ContextMenuItem[] => [
     {

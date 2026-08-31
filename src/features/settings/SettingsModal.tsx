@@ -682,8 +682,22 @@ export const SettingsModal: React.FC = () => {
                     <DownloadCloud size={18} />
                   </div>
                   <div>
-                    <div style={{ fontSize: "13px", fontWeight: 600 }}>
-                      {t("settings.backupButton")}
+                    <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                      <span style={{ fontSize: "13px", fontWeight: 600 }}>
+                        {t("settings.backupButton")}
+                      </span>
+                      <span
+                        style={{
+                          fontSize: "10px",
+                          fontWeight: 600,
+                          padding: "1px 6px",
+                          borderRadius: "10px",
+                          backgroundColor: "var(--accent-subtle)",
+                          color: "var(--accent)",
+                        }}
+                      >
+                        {language === "tr" ? "AES-256" : "AES-256"}
+                      </span>
                     </div>
                     <span style={{ fontSize: "11px", color: "var(--text-tertiary)" }}>
                       {t("settings.backupSubtext")}
@@ -692,6 +706,7 @@ export const SettingsModal: React.FC = () => {
                 </div>
                 <ChevronRight size={15} style={{ color: "var(--text-tertiary)" }} />
               </button>
+
 
               {/* Restore Button */}
               <button
