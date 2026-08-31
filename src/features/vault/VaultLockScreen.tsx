@@ -10,7 +10,11 @@ import { useTranslation } from "../../i18n";
 export const VaultLockScreen: React.FC = () => {
   const { t } = useTranslation();
   const [password, setPassword] = useState("");
-  const { unlock, isLoading, error, clearError } = useVaultSessionStore();
+  const unlock = useVaultSessionStore((s) => s.unlock);
+  const isLoading = useVaultSessionStore((s) => s.isLoading);
+  const error = useVaultSessionStore((s) => s.error);
+  const clearError = useVaultSessionStore((s) => s.clearError);
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

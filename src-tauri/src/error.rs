@@ -104,10 +104,11 @@ impl From<std::io::Error> for AppError {
 
 
 impl From<serde_json::Error> for AppError {
-    fn from(err: serde_json::Error) -> Self {
-        AppError::Custom(err.to_string())
+    fn from(_err: serde_json::Error) -> Self {
+        AppError::VaultCorrupted
     }
 }
+
 
 impl Serialize for AppError {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>

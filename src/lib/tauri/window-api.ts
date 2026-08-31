@@ -10,7 +10,9 @@ export const windowApi = {
         const win = getCurrentWindow();
         await win.hide();
       } catch (err) {
-        console.warn("Hide to tray fallback error:", err);
+        if (import.meta.env.DEV) {
+          console.warn("Hide to tray fallback error:", err);
+        }
       }
     }
   },
@@ -25,7 +27,9 @@ export const windowApi = {
         await win.unminimize();
         await win.setFocus();
       } catch (err) {
-        console.warn("Show from tray fallback error:", err);
+        if (import.meta.env.DEV) {
+          console.warn("Show from tray fallback error:", err);
+        }
       }
     }
   },
@@ -38,8 +42,11 @@ export const windowApi = {
         const win = getCurrentWindow();
         await win.close();
       } catch (err) {
-        console.warn("Close application fallback error:", err);
+        if (import.meta.env.DEV) {
+          console.warn("Close application fallback error:", err);
+        }
       }
     }
   },
 };
+

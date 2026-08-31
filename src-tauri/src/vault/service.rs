@@ -424,9 +424,10 @@ impl VaultService {
                 .iter()
                 .find(|d| d.id == env_id)
                 .cloned()
-                .unwrap();
+                .ok_or(AppError::EnvDocumentNotFound)?;
             return Ok(doc);
         }
+
 
         if snapshot.env_documents.iter().any(|d| {
             d.project_id == project_id

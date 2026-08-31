@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { exportApi } from "../lib/tauri/export-api";
 import { useTranslation } from "../i18n";
 
@@ -6,6 +6,27 @@ export const useProjectExportActions = () => {
   const { language } = useTranslation();
   const [isExporting, setIsExporting] = useState(false);
   const [exportFeedback, setExportFeedback] = useState<string | null>(null);
+  const feedbackTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (feedbackTimerRef.current) {
+        clearTimeout(feedbackTimerRef.current);
+        feedbackTimerRef.current = null;
+      }
+    };
+  }, []);
+
+  const triggerFeedback = useCallback((msg: string) => {
+    if (feedbackTimerRef.current) {
+      clearTimeout(feedbackTimerRef.current);
+    }
+    setExportFeedback(msg);
+    feedbackTimerRef.current = setTimeout(() => {
+      setExportFeedback(null);
+      feedbackTimerRef.current = null;
+    }, 3000);
+  }, []);
 
   const exportProjectToFolder = async (
     projectId: string,
@@ -38,16 +59,14 @@ export const useProjectExportActions = () => {
         language === "tr"
           ? `${report.exportedCount} dosya aktarıldı`
           : `${report.exportedCount} files exported`;
-      setExportFeedback(msg);
-      setTimeout(() => setExportFeedback(null), 3000);
+      triggerFeedback(msg);
       return true;
     } catch {
       const errMsg =
         language === "tr"
           ? "Dışa aktarma sırasında hata oluştu"
           : "Export failed";
-      setExportFeedback(errMsg);
-      setTimeout(() => setExportFeedback(null), 3000);
+      triggerFeedback(errMsg);
       return false;
     } finally {
       setIsExporting(false);
@@ -86,16 +105,14 @@ export const useProjectExportActions = () => {
         language === "tr"
           ? "Birleşik dosya kaydedildi"
           : "Combined file saved";
-      setExportFeedback(msg);
-      setTimeout(() => setExportFeedback(null), 3000);
+      triggerFeedback(msg);
       return true;
     } catch {
       const errMsg =
         language === "tr"
           ? "Dışa aktarma sırasında hata oluştu"
           : "Export failed";
-      setExportFeedback(errMsg);
-      setTimeout(() => setExportFeedback(null), 3000);
+      triggerFeedback(errMsg);
       return false;
     } finally {
       setIsExporting(false);
@@ -109,3 +126,4 @@ export const useProjectExportActions = () => {
     exportMergedProject,
   };
 };
+

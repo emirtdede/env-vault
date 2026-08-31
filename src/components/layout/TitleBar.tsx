@@ -157,7 +157,9 @@ export const TitleBar: React.FC = () => {
       const win = getCurrentWindow();
       await win.minimize();
     } catch (err) {
-      console.warn("Minimize error:", err);
+      if (import.meta.env.DEV) {
+        console.warn("Minimize error:", err);
+      }
     }
   };
 
@@ -174,7 +176,9 @@ export const TitleBar: React.FC = () => {
         setIsMaximized(true);
       }
     } catch (err) {
-      console.warn("Maximize toggle error:", err);
+      if (import.meta.env.DEV) {
+        console.warn("Maximize toggle error:", err);
+      }
     }
   };
 
@@ -189,9 +193,12 @@ export const TitleBar: React.FC = () => {
         openCloseAction();
       }
     } catch (err) {
-      console.warn("Close error:", err);
+      if (import.meta.env.DEV) {
+        console.warn("Close error:", err);
+      }
     }
   };
+
 
   return (
     <header

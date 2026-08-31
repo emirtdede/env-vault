@@ -148,12 +148,17 @@ export const EnvEditor: React.FC = () => {
   };
 
   const clipboardTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const copyFeedbackTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     return () => {
       if (clipboardTimerRef.current) {
         clearTimeout(clipboardTimerRef.current);
         clipboardTimerRef.current = null;
+      }
+      if (copyFeedbackTimerRef.current) {
+        clearTimeout(copyFeedbackTimerRef.current);
+        copyFeedbackTimerRef.current = null;
       }
     };
   }, []);
@@ -162,7 +167,13 @@ export const EnvEditor: React.FC = () => {
     try {
       await navigator.clipboard.writeText(rawContent);
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      if (copyFeedbackTimerRef.current) {
+        clearTimeout(copyFeedbackTimerRef.current);
+      }
+      copyFeedbackTimerRef.current = setTimeout(() => {
+        setCopied(false);
+        copyFeedbackTimerRef.current = null;
+      }, 2000);
 
       if (clipboardTimerRef.current) {
         clearTimeout(clipboardTimerRef.current);
@@ -183,6 +194,7 @@ export const EnvEditor: React.FC = () => {
       }
     } catch {}
   };
+
 
 
   const handleCloseRef = useRef(handleClose);

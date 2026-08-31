@@ -1,6 +1,8 @@
 import { create } from "zustand";
 import { VaultState } from "../types";
 import { vaultApi } from "../lib/tauri/vault-api";
+import { useEditorStore } from "./useEditorStore";
+import { useEnvStore } from "./useEnvStore";
 
 interface VaultSessionStoreState {
   state: VaultState;
@@ -60,8 +62,12 @@ export const useVaultSessionStore = create<VaultSessionStoreState>((set) => ({
   lock: async () => {
     try {
       await vaultApi.lockVault();
+      useEditorStore.getState().closeDocument();
+      useEnvStore.getState().clearDocuments();
       set({ state: "locked", error: null });
     } catch {
+      useEditorStore.getState().closeDocument();
+      useEnvStore.getState().clearDocuments();
       set({ state: "locked" });
     }
   },
@@ -82,6 +88,8 @@ export const useVaultSessionStore = create<VaultSessionStoreState>((set) => ({
     try {
       set({ isLoading: true, error: null });
       await vaultApi.resetVault();
+      useEditorStore.getState().closeDocument();
+      useEnvStore.getState().clearDocuments();
       set({ state: "uninitialized", isLoading: false });
     } catch (err: unknown) {
       const msg = (err as { message?: string })?.message || "Kasa sıfırlanamadı.";
@@ -92,3 +100,4 @@ export const useVaultSessionStore = create<VaultSessionStoreState>((set) => ({
 
   clearError: () => set({ error: null }),
 }));
+
