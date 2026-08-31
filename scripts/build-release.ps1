@@ -60,6 +60,11 @@ if (Test-Path $nsiScript) {
         if ($LASTEXITCODE -ne 0) {
             Write-Host "[UYARI] NSIS yeniden paketleme başarısız oldu, varsayılan paket kullanılacak." -ForegroundColor Yellow
         } else {
+            $nsisOutput = Join-Path $rootDir "src-tauri\target\release\nsis\x64\nsis-output.exe"
+            $nsisBundle = Join-Path $rootDir "src-tauri\target\release\bundle\nsis\Env Vault_1.0.0_x64-setup.exe"
+            if (Test-Path $nsisOutput) {
+                Copy-Item $nsisOutput $nsisBundle -Force
+            }
             Write-Host "NSIS Kurulum ve Kaldırma Paketi Kusursuz Hizalama ile Güncellendi!" -ForegroundColor Green
         }
     }
@@ -75,13 +80,16 @@ if (-not (Test-Path $releaseDir)) {
 Get-Process | Where-Object { $_.Path -like "*Env-Vault*" -or $_.Name -like "*env-vault*" -or $_.ProcessName -like "*env-vault*" } | Stop-Process -Force -ErrorAction SilentlyContinue
 Start-Sleep -Seconds 1
 
-$nsisSource = Join-Path $rootDir "src-tauri\target\release\bundle\nsis\Env Vault_1.0.0_x64-setup.exe"
+$nsisOutput = Join-Path $rootDir "src-tauri\target\release\nsis\x64\nsis-output.exe"
+$nsisBundle = Join-Path $rootDir "src-tauri\target\release\bundle\nsis\Env Vault_1.0.0_x64-setup.exe"
+$nsisSource = if (Test-Path $nsisOutput) { $nsisOutput } else { $nsisBundle }
 $msiSource = Join-Path $rootDir "src-tauri\target\release\bundle\msi\Env Vault_1.0.0_x64_tr-TR.msi"
 $exeSource = Join-Path $rootDir "src-tauri\target\release\env-vault.exe"
 
 Copy-Item $nsisSource (Join-Path $releaseDir "Env-Vault-1.0.0-Windows-x64-Setup.exe") -Force
 Copy-Item $msiSource (Join-Path $releaseDir "Env-Vault-1.0.0-Windows-x64.msi") -Force
 Copy-Item $exeSource (Join-Path $releaseDir "Env-Vault-1.0.0-Windows-x64-Portable.exe") -Force
+
 
 # Create portable zip
 $licenseFile = Join-Path $rootDir "LICENSE"
