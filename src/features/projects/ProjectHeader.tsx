@@ -6,6 +6,7 @@ import {
   FolderDown,
   CheckCircle2,
   Folder,
+  GitCompare,
 } from "lucide-react";
 import { useProjectStore } from "../../stores/useProjectStore";
 import { useDialogStore } from "../../stores/useDialogStore";
@@ -14,7 +15,6 @@ import { Button } from "../../components/primitives/Button";
 import { IconButton } from "../../components/primitives/IconButton";
 import { useTranslation } from "../../i18n";
 import { useProjectExportActions } from "../../hooks/useProjectExportActions";
-
 
 export interface ProjectHeaderProps {
   onEditProject?: () => void;
@@ -29,7 +29,9 @@ export const ProjectHeader: React.FC<ProjectHeaderProps> = ({ onEditProject }) =
 
   const openAddEnv = useDialogStore((s) => s.openAddEnv);
   const openEditProject = useDialogStore((s) => s.openEditProject);
+  const openEnvDiff = useDialogStore((s) => s.openEnvDiff);
   const showConfirm = useDialogStore((s) => s.showConfirm);
+
 
   const {
     isExporting,
@@ -171,6 +173,17 @@ export const ProjectHeader: React.FC<ProjectHeaderProps> = ({ onEditProject }) =
             >
               {language === "tr" ? "Birleşik Aktar (.env)" : "Export Combined (.env)"}
             </Button>
+            {documents.length >= 2 && (
+              <Button
+                variant="secondary"
+                size="sm"
+                leftIcon={<GitCompare size={14} />}
+                onClick={openEnvDiff}
+                title={language === "tr" ? "İki ortam dosyası arasındaki değişken farklarını gösterir" : "Compare key & value diffs between two environment files"}
+              >
+                {language === "tr" ? "Karşılaştır" : "Diff"}
+              </Button>
+            )}
           </div>
         )}
 
@@ -180,6 +193,7 @@ export const ProjectHeader: React.FC<ProjectHeaderProps> = ({ onEditProject }) =
           leftIcon={<FilePlus size={15} />}
           onClick={openAddEnv}
         >
+
           {t("common.file")} {t("project.addEnvFile")}
         </Button>
         <IconButton

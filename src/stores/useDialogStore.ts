@@ -26,6 +26,7 @@ interface DialogStoreState {
   isRestoreOpen: boolean;
   isChangePasswordOpen: boolean;
   isCloseActionOpen: boolean;
+  isEnvDiffOpen: boolean;
   editingProject: Project | null;
   confirmDialog: ConfirmDialogOptions | null;
   collisionDialog: CollisionDialogOptions | null;
@@ -52,6 +53,9 @@ interface DialogStoreState {
   openCloseAction: () => void;
   closeCloseAction: () => void;
 
+  openEnvDiff: () => void;
+  closeEnvDiff: () => void;
+
   openEditProject: (project: Project) => void;
   closeEditProject: () => void;
 
@@ -71,6 +75,7 @@ export const useDialogStore = create<DialogStoreState>((set) => ({
   isRestoreOpen: false,
   isChangePasswordOpen: false,
   isCloseActionOpen: false,
+  isEnvDiffOpen: false,
   editingProject: null,
   confirmDialog: null,
   collisionDialog: null,
@@ -97,6 +102,9 @@ export const useDialogStore = create<DialogStoreState>((set) => ({
   openCloseAction: () => set({ isCloseActionOpen: true }),
   closeCloseAction: () => set({ isCloseActionOpen: false }),
 
+  openEnvDiff: () => set({ isEnvDiffOpen: true }),
+  closeEnvDiff: () => set({ isEnvDiffOpen: false }),
+
   openEditProject: (project: Project) => set({ editingProject: project }),
   closeEditProject: () => set({ editingProject: null }),
 
@@ -106,3 +114,4 @@ export const useDialogStore = create<DialogStoreState>((set) => ({
   showCollision: (options) => set({ collisionDialog: options }),
   closeCollision: () => set({ collisionDialog: null }),
 }));
+

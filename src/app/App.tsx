@@ -27,7 +27,9 @@ import { BackupModal } from "../features/backup/BackupModal";
 import { RestoreModal } from "../features/backup/RestoreModal";
 import { ChangePasswordModal } from "../features/vault/ChangePasswordModal";
 import { CloseActionModal } from "../components/layout/CloseActionModal";
+import { EnvDiffModal } from "../features/env-documents/EnvDiffModal";
 import { ConfirmDialog } from "../components/primitives/ConfirmDialog";
+
 
 export const App: React.FC = () => {
   const { t, language } = useTranslation();
@@ -185,8 +187,10 @@ export const App: React.FC = () => {
       <RestoreModal />
       <ChangePasswordModal />
       <CloseActionModal />
+      <EnvDiffModal />
 
       {/* Reusable Confirm Dialog */}
+
       {confirmDialog && (
         <ConfirmDialog
           isOpen={true}
