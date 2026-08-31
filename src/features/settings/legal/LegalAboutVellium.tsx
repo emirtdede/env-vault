@@ -42,7 +42,7 @@ export const LegalAboutVellium: React.FC = () => {
           }}
         />
 
-        <VelliumLogo size={54} showText={true} style={{ marginBottom: "var(--space-3)" }} />
+        <VelliumLogo size={54} showText={true} layout="vertical" style={{ marginBottom: "var(--space-3)" }} />
 
         <h3
           style={{

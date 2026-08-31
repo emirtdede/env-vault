@@ -3,6 +3,7 @@ import React from "react";
 export interface VelliumLogoProps {
   size?: number;
   showText?: boolean;
+  layout?: "horizontal" | "vertical";
   className?: string;
   style?: React.CSSProperties;
 }
@@ -10,6 +11,7 @@ export interface VelliumLogoProps {
 export const VelliumLogo: React.FC<VelliumLogoProps> = ({
   size = 32,
   showText = true,
+  layout = "horizontal",
   className = "",
   style = {},
 }) => {
@@ -18,8 +20,10 @@ export const VelliumLogo: React.FC<VelliumLogoProps> = ({
       className={`vellium-brand-logo ${className}`}
       style={{
         display: "inline-flex",
+        flexDirection: layout === "vertical" ? "column" : "row",
         alignItems: "center",
-        gap: `${Math.max(8, Math.round(size * 0.3))}px`,
+        justifyContent: "center",
+        gap: layout === "vertical" ? `${Math.max(6, Math.round(size * 0.16))}px` : `${Math.max(8, Math.round(size * 0.3))}px`,
         userSelect: "none",
         color: "inherit",
         ...style,

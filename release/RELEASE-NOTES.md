@@ -32,7 +32,7 @@
 
 | Dosya Adı | Açıklama | SHA-256 Sağlama Toplamı |
 | :--- | :--- | :--- |
-| **`Env-Vault-1.0.0-Windows-x64-Setup.exe`** | NSIS Kurulum Sihirbazı | `900bdc8f92071093b4996deab7e6a0ed6e62bec2ae7f088975495f45b644556c` |
-| **`Env-Vault-1.0.0-Windows-x64.msi`** | Windows Installer (MSI) | `fdbbf1da7d3a87d2007838f0608754927752507713a71b3a7a2f101d0f72c5ab` |
-| **`Env-Vault-1.0.0-Windows-x64-Portable.exe`** | Bağımsız Taşınabilir EXE | `ae5d4933f117c0d1d833af1cfd4f40e82b98af4b0c07553f9e8879178e2179d7` |
-| **`Env-Vault-1.0.0-Windows-x64-Portable.zip`** | Taşınabilir ZIP Paketi | `8c07c966946a013ff0bffd9af3d713a6c15955d7e66e91ff051d90d1948acaa3` |
+| **`Env-Vault-1.0.0-Windows-x64-Setup.exe`** | NSIS Kurulum Sihirbazı | `05086265c13445e7e075664cd491bef167ab96ca99a6e0e0ab0ae761eaad764d` |
+| **`Env-Vault-1.0.0-Windows-x64.msi`** | Windows Installer (MSI) | `e05e464ad1dce0fd36db4b7ec0321840d3f04f829b71ae644b5053df7934bc42` |
+| **`Env-Vault-1.0.0-Windows-x64-Portable.exe`** | Bağımsız Taşınabilir EXE | `defe9f1141e2b5417659edd2a6adc1cb06262a02e7405fdb35f30691475593da` |
+| **`Env-Vault-1.0.0-Windows-x64-Portable.zip`** | Taşınabilir ZIP Paketi | `ac702a71b50e9049e9f6bd3a87dcfc41487ad45346e6dd1186aac216697cf879` |
