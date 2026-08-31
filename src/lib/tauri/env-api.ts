@@ -45,4 +45,9 @@ export const envApi = {
   deleteEnvDocument: async (envId: string): Promise<void> => {
     await invoke("delete_env_document", { envId });
   },
+
+  deleteEnvDocumentsBatch: async (envIds: string[]): Promise<void> => {
+    await invoke("delete_env_documents_batch", { envIds });
+  },
 };
+

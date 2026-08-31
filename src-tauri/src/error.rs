@@ -87,9 +87,21 @@ pub enum AppError {
 
 impl From<std::io::Error> for AppError {
     fn from(err: std::io::Error) -> Self {
-        AppError::Custom(err.to_string())
+        match err.kind() {
+            std::io::ErrorKind::NotFound => {
+                AppError::Custom("Belirtilen dosya veya dizin bulunamadı.".into())
+            }
+            std::io::ErrorKind::PermissionDenied => {
+                AppError::Custom("Dosya veya dizin erişim izni reddedildi.".into())
+            }
+            std::io::ErrorKind::AlreadyExists => {
+                AppError::Custom("Dosya veya dizin zaten mevcut.".into())
+            }
+            _ => AppError::Custom("Dosya sistemi işlemi sırasında bir hata oluştu.".into()),
+        }
     }
 }
+
 
 impl From<serde_json::Error> for AppError {
     fn from(err: serde_json::Error) -> Self {

@@ -147,25 +147,43 @@ export const EnvEditor: React.FC = () => {
     }
   };
 
+  const clipboardTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (clipboardTimerRef.current) {
+        clearTimeout(clipboardTimerRef.current);
+        clipboardTimerRef.current = null;
+      }
+    };
+  }, []);
+
   const handleCopyAll = async () => {
     try {
       await navigator.clipboard.writeText(rawContent);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
 
+      if (clipboardTimerRef.current) {
+        clearTimeout(clipboardTimerRef.current);
+        clipboardTimerRef.current = null;
+      }
+
       // Auto-clear clipboard after configured seconds
       if (clearClipboardSeconds > 0) {
-        setTimeout(async () => {
+        clipboardTimerRef.current = setTimeout(async () => {
           try {
             const current = await navigator.clipboard.readText();
             if (current === rawContent) {
               await navigator.clipboard.writeText("");
             }
           } catch {}
+          clipboardTimerRef.current = null;
         }, clearClipboardSeconds * 1000);
       }
     } catch {}
   };
+
 
   const handleCloseRef = useRef(handleClose);
   handleCloseRef.current = handleClose;

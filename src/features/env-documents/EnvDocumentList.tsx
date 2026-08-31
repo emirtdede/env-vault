@@ -24,7 +24,7 @@ export const EnvDocumentList: React.FC = () => {
   const selectedProjectId = useProjectStore((s) => s.selectedProjectId);
   const documents = useEnvStore((s) => s.documents);
   const fetchDocuments = useEnvStore((s) => s.fetchDocuments);
-  const deleteDocument = useEnvStore((s) => s.deleteDocument);
+  const deleteDocumentsBatch = useEnvStore((s) => s.deleteDocumentsBatch);
   const searchQuery = useEnvStore((s) => s.searchQuery);
   const setSearchQuery = useEnvStore((s) => s.setSearchQuery);
 
@@ -44,6 +44,11 @@ export const EnvDocumentList: React.FC = () => {
     }
   }, [selectedProjectId, fetchDocuments]);
 
+  const filteredDocs = React.useMemo(() => {
+    const q = searchQuery.toLowerCase().trim();
+    return q ? documents.filter((d) => d.filename.toLowerCase().includes(q)) : documents;
+  }, [documents, searchQuery]);
+
   if (!selectedProjectId) {
     return (
       <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -55,10 +60,6 @@ export const EnvDocumentList: React.FC = () => {
       </div>
     );
   }
-
-  const filteredDocs = documents.filter((d) =>
-    d.filename.toLowerCase().includes(searchQuery.toLowerCase())
-  );
 
   const toggleSelect = (id: string) => {
     setSelectedIds((prev) => {
@@ -107,8 +108,9 @@ export const EnvDocumentList: React.FC = () => {
       setTimeout(() => setFeedback(null), 3000);
       setSelectionMode(false);
       setSelectedIds(new Set());
-    } catch (err: unknown) {
-      console.error(err);
+    } catch {
+      setFeedback(language === "tr" ? "Dışa aktarma sırasında hata oluştu" : "Export failed");
+      setTimeout(() => setFeedback(null), 3000);
     } finally {
       setIsExporting(false);
     }
@@ -117,27 +119,29 @@ export const EnvDocumentList: React.FC = () => {
   const handleBatchDelete = () => {
     if (selectedIds.size === 0) return;
 
+    const idsToDelete = Array.from(selectedIds);
     showConfirm({
-      title: language === "tr" ? `${selectedIds.size} Ortam Dosyası Silinsin mi?` : `Delete ${selectedIds.size} Environment Files?`,
+      title: language === "tr" ? `${idsToDelete.length} Ortam Dosyası Silinsin mi?` : `Delete ${idsToDelete.length} Environment Files?`,
       message: language === "tr"
-        ? `Seçilen ${selectedIds.size} adet ortam dosyası şifreli kasadan silinecektir. Bu işlem geri alınamaz.`
-        : `Selected ${selectedIds.size} environment files will be permanently deleted from the vault. This action cannot be undone.`,
+        ? `Seçilen ${idsToDelete.length} adet ortam dosyası şifreli kasadan silinecektir. Bu işlem geri alınamaz.`
+        : `Selected ${idsToDelete.length} environment files will be permanently deleted from the vault. This action cannot be undone.`,
       confirmLabel: language === "tr" ? "Seçilenleri Sil" : "Delete Selected",
       cancelLabel: t("common.cancel"),
       isDestructive: true,
       onConfirm: async () => {
-        for (const id of selectedIds) {
-          try {
-            await deleteDocument(id);
-          } catch {}
+        try {
+          await deleteDocumentsBatch(idsToDelete);
+          setFeedback(language === "tr" ? `${idsToDelete.length} dosya kasadan silindi` : `${idsToDelete.length} files deleted from vault`);
+        } catch {
+          setFeedback(language === "tr" ? "Dosyalar silinirken hata oluştu" : "Failed to delete files");
         }
-        setFeedback(language === "tr" ? `${selectedIds.size} dosya kasadan silindi` : `${selectedIds.size} files deleted from vault`);
         setTimeout(() => setFeedback(null), 3000);
         setSelectedIds(new Set());
         setSelectionMode(false);
       },
     });
   };
+
 
   return (
     <div

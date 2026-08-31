@@ -15,6 +15,7 @@ interface EnvStoreState {
   updateDocument: (id: string, rawText: string) => Promise<EnvDocument>;
   renameDocument: (id: string, newFilename: string) => Promise<EnvDocument>;
   deleteDocument: (id: string) => Promise<void>;
+  deleteDocumentsBatch: (ids: string[]) => Promise<void>;
   clearDocuments: () => void;
   clearError: () => void;
 }
@@ -105,6 +106,25 @@ export const useEnvStore = create<EnvStoreState>((set) => ({
       throw err;
     }
   },
+
+  deleteDocumentsBatch: async (ids) => {
+    if (ids.length === 0) return;
+    try {
+      set({ isLoading: true, error: null });
+      await envApi.deleteEnvDocumentsBatch(ids);
+      const idSet = new Set(ids);
+      set((state) => ({
+        documents: state.documents.filter((d) => !idSet.has(d.id)),
+        selectedDocId: state.selectedDocId && idSet.has(state.selectedDocId) ? null : state.selectedDocId,
+        isLoading: false,
+      }));
+    } catch (err: unknown) {
+      const msg = (err as { message?: string })?.message || "Ortam dosyaları silinemedi.";
+      set({ error: msg, isLoading: false });
+      throw err;
+    }
+  },
+
 
   clearDocuments: () => set({ documents: [], selectedDocId: null, error: null }),
   clearError: () => set({ error: null }),

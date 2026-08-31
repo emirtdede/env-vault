@@ -51,6 +51,17 @@ export const EnvDocumentCard: React.FC<EnvDocumentCardProps> = ({
   const exportCollisionPolicy = usePreferencesStore((s) => s.exportCollisionPolicy);
   const clearClipboardSeconds = usePreferencesStore((s) => s.clearClipboardSeconds);
 
+  const clipboardTimerRef = React.useRef<NodeJS.Timeout | null>(null);
+
+  React.useEffect(() => {
+    return () => {
+      if (clipboardTimerRef.current) {
+        clearTimeout(clipboardTimerRef.current);
+        clipboardTimerRef.current = null;
+      }
+    };
+  }, []);
+
   const handleEdit = () => {
     openDocument(document.id, document.filename);
   };
@@ -60,21 +71,26 @@ export const EnvDocumentCard: React.FC<EnvDocumentCardProps> = ({
       const payload = await envApi.readEnvDocument(document.id);
       await navigator.clipboard.writeText(payload.rawText);
 
+      if (clipboardTimerRef.current) {
+        clearTimeout(clipboardTimerRef.current);
+        clipboardTimerRef.current = null;
+      }
+
       // Auto-clear clipboard after configured seconds
       if (clearClipboardSeconds > 0) {
-        setTimeout(async () => {
+        clipboardTimerRef.current = setTimeout(async () => {
           try {
             const current = await navigator.clipboard.readText();
             if (current === payload.rawText) {
               await navigator.clipboard.writeText("");
             }
           } catch {}
+          clipboardTimerRef.current = null;
         }, clearClipboardSeconds * 1000);
       }
-    } catch (err: unknown) {
-      console.error("Kopyalama hatası:", err);
-    }
+    } catch {}
   };
+
 
   const handleExport = async (forceSaveDialog: boolean = false) => {
     try {
@@ -108,12 +124,13 @@ export const EnvDocumentCard: React.FC<EnvDocumentCardProps> = ({
         defaultDir,
         exportCollisionPolicy
       );
-    } catch (err: unknown) {
-      console.error(err);
+    } catch {
+      // Export failed or cancelled silently
     } finally {
       setIsExporting(false);
     }
   };
+
 
   const handleDelete = () => {
     showConfirm({

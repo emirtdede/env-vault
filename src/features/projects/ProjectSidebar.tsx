@@ -16,6 +16,7 @@ import { SearchField } from "../../components/primitives/SearchField";
 import { ContextMenu, ContextMenuItem } from "../../components/primitives/ContextMenu";
 import { Project } from "../../types";
 import { useTranslation } from "../../i18n";
+import { useProjectExportActions } from "../../hooks/useProjectExportActions";
 
 export const ProjectSidebar: React.FC = () => {
   const { t, language } = useTranslation();
@@ -32,6 +33,7 @@ export const ProjectSidebar: React.FC = () => {
   const openAddEnv = useDialogStore((s) => s.openAddEnv);
   const showConfirm = useDialogStore((s) => s.showConfirm);
 
+  const { exportProjectToFolder, exportMergedProject } = useProjectExportActions();
 
   const [contextMenu, setContextMenu] = useState<{
     x: number;
@@ -44,17 +46,20 @@ export const ProjectSidebar: React.FC = () => {
     y: number;
   } | null>(null);
 
-  const filteredProjects = projects.filter((p) =>
-    p.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Sort favorites first, then alphabetically with useMemo
+  const sortedProjects = React.useMemo(() => {
+    const query = searchQuery.toLowerCase().trim();
+    const filtered = query
+      ? projects.filter((p) => p.name.toLowerCase().includes(query))
+      : projects;
 
-  // Sort favorites first, then alphabetically
-  const sortedProjects = [...filteredProjects].sort((a, b) => {
-    if (a.favorite === b.favorite) {
-      return a.name.localeCompare(b.name, language);
-    }
-    return a.favorite ? -1 : 1;
-  });
+    return [...filtered].sort((a, b) => {
+      if (a.favorite === b.favorite) {
+        return a.name.localeCompare(b.name, language);
+      }
+      return a.favorite ? -1 : 1;
+    });
+  }, [projects, searchQuery, language]);
 
   const getProjectMenuItems = (project: Project): ContextMenuItem[] => [
     {
@@ -78,42 +83,16 @@ export const ProjectSidebar: React.FC = () => {
       id: "export-all-env",
       label: language === "tr" ? "Tüm Dosyaları Klasöre Aktar..." : "Export All Files to Folder...",
       icon: <FolderDown size={14} />,
-      onClick: async () => {
-        try {
-          const { open } = await import("@tauri-apps/plugin-dialog");
-          const selected = await open({
-            directory: true,
-            multiple: false,
-            title: language === "tr" ? `"${project.name}" Dosyalarının Kaydedileceği Klasörü Seçin` : `Select Folder to Export "${project.name}" Files`,
-          });
-          if (selected && typeof selected === "string") {
-            const { exportApi } = await import("../../lib/tauri/export-api");
-            await exportApi.exportProjectEnvDocuments(project.id, selected, "overwrite");
-          }
-        } catch (e) {
-          console.error(e);
-        }
+      onClick: () => {
+        exportProjectToFolder(project.id, project.name);
       },
     },
     {
       id: "export-merged-env",
       label: language === "tr" ? "Birleşik Tek Dosya Olarak Aktar (.env)..." : "Export as Combined Single File (.env)...",
       icon: <FolderDown size={14} />,
-      onClick: async () => {
-        try {
-          const { save } = await import("@tauri-apps/plugin-dialog");
-          const selected = await save({
-            defaultPath: `${project.name.toLowerCase().replace(/[^a-z0-9]/g, "-")}.combined.env`,
-            title: language === "tr" ? `"${project.name}" Birleşik Ortam Dosyasını Kaydet` : `Save "${project.name}" Combined Environment File`,
-            filters: [{ name: language === "tr" ? "Ortam Dosyası" : "Environment File", extensions: ["env", "txt"] }],
-          });
-          if (selected && typeof selected === "string") {
-            const { exportApi } = await import("../../lib/tauri/export-api");
-            await exportApi.exportMergedProjectEnv(project.id, selected);
-          }
-        } catch (e) {
-          console.error(e);
-        }
+      onClick: () => {
+        exportMergedProject(project.id, project.name);
       },
     },
     {
@@ -142,6 +121,7 @@ export const ProjectSidebar: React.FC = () => {
       },
     },
   ];
+
 
   return (
     <aside
@@ -364,8 +344,8 @@ export const ProjectSidebar: React.FC = () => {
                     const { exportApi } = await import("../../lib/tauri/export-api");
                     await exportApi.exportAllProjects(selected, "overwrite");
                   }
-                } catch (e) {
-                  console.error(e);
+                } catch {
+                  // Handled or cancelled
                 }
               },
             },
@@ -373,6 +353,7 @@ export const ProjectSidebar: React.FC = () => {
           onClose={() => setNavContextMenu(null)}
         />
       )}
+
     </aside>
   );
 };

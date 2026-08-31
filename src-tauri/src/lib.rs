@@ -152,6 +152,7 @@ pub fn run() {
             update_env_document,
             rename_env_document,
             delete_env_document,
+            delete_env_documents_batch,
             // Import Commands
             import_env_file,
             import_env_files,

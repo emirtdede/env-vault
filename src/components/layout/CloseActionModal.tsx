@@ -48,12 +48,13 @@ export const CloseActionModal: React.FC = () => {
       } else {
         await windowApi.closeOrExit();
       }
-    } catch (err) {
-      console.error("Close action failed:", err);
+    } catch {
+      // Close action fallback
     } finally {
       setIsLoading(false);
     }
   };
+
 
   return (
     <Dialog isOpen={isOpen} onClose={onClose} title={t("closeModal.title")} maxWidth="480px">

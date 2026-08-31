@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   FilePlus,
   Pencil,
@@ -10,10 +10,11 @@ import {
 import { useProjectStore } from "../../stores/useProjectStore";
 import { useDialogStore } from "../../stores/useDialogStore";
 import { useEnvStore } from "../../stores/useEnvStore";
-import { exportApi } from "../../lib/tauri/export-api";
 import { Button } from "../../components/primitives/Button";
 import { IconButton } from "../../components/primitives/IconButton";
 import { useTranslation } from "../../i18n";
+import { useProjectExportActions } from "../../hooks/useProjectExportActions";
+
 
 export interface ProjectHeaderProps {
   onEditProject?: () => void;
@@ -30,8 +31,12 @@ export const ProjectHeader: React.FC<ProjectHeaderProps> = ({ onEditProject }) =
   const openEditProject = useDialogStore((s) => s.openEditProject);
   const showConfirm = useDialogStore((s) => s.showConfirm);
 
-  const [isExporting, setIsExporting] = useState(false);
-  const [exportFeedback, setExportFeedback] = useState<string | null>(null);
+  const {
+    isExporting,
+    exportFeedback,
+    exportProjectToFolder,
+    exportMergedProject,
+  } = useProjectExportActions();
 
   const project = projects.find((p) => p.id === selectedProjectId);
 
@@ -39,56 +44,12 @@ export const ProjectHeader: React.FC<ProjectHeaderProps> = ({ onEditProject }) =
 
   const handleExportAllToFolder = async () => {
     if (!project || documents.length === 0) return;
-
-    try {
-      setIsExporting(true);
-      const { open } = await import("@tauri-apps/plugin-dialog");
-      const selected = await open({
-        directory: true,
-        multiple: false,
-        title: language === "tr" ? `"${project.name}" Ortam Dosyalarının Kaydedileceği Klasörü Seçin` : `Select Folder to Export "${project.name}" Environment Files`,
-      });
-
-      if (!selected || typeof selected !== "string") {
-        setIsExporting(false);
-        return;
-      }
-
-      const report = await exportApi.exportProjectEnvDocuments(project.id, selected, "overwrite");
-      setExportFeedback(language === "tr" ? `${report.exportedCount} dosya aktarıldı` : `${report.exportedCount} files exported`);
-      setTimeout(() => setExportFeedback(null), 3000);
-    } catch (err: unknown) {
-      console.error(err);
-    } finally {
-      setIsExporting(false);
-    }
+    await exportProjectToFolder(project.id, project.name);
   };
 
   const handleExportMerged = async () => {
     if (!project || documents.length === 0) return;
-
-    try {
-      setIsExporting(true);
-      const { save } = await import("@tauri-apps/plugin-dialog");
-      const selected = await save({
-        defaultPath: `${project.name.toLowerCase().replace(/[^a-z0-9]/g, "-")}.combined.env`,
-        title: language === "tr" ? `"${project.name}" Birleşik Ortam Dosyasını Kaydet` : `Save "${project.name}" Combined Environment File`,
-        filters: [{ name: language === "tr" ? "Ortam Dosyası" : "Environment File", extensions: ["env", "txt"] }],
-      });
-
-      if (!selected || typeof selected !== "string") {
-        setIsExporting(false);
-        return;
-      }
-
-      await exportApi.exportMergedProjectEnv(project.id, selected);
-      setExportFeedback(language === "tr" ? "Birleşik dosya kaydedildi" : "Combined file saved");
-      setTimeout(() => setExportFeedback(null), 3000);
-    } catch (err: unknown) {
-      console.error(err);
-    } finally {
-      setIsExporting(false);
-    }
+    await exportMergedProject(project.id, project.name);
   };
 
   const handleDelete = () => {
@@ -103,6 +64,7 @@ export const ProjectHeader: React.FC<ProjectHeaderProps> = ({ onEditProject }) =
       },
     });
   };
+
 
   return (
     <header

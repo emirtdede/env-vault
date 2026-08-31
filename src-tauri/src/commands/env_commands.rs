@@ -55,3 +55,12 @@ pub fn delete_env_document(
 ) -> AppResult<()> {
     vault_service.delete_env_document(&env_id)
 }
+
+#[tauri::command]
+pub fn delete_env_documents_batch(
+    env_ids: Vec<String>,
+    vault_service: State<'_, Arc<VaultService>>,
+) -> AppResult<()> {
+    vault_service.delete_env_documents_batch(&env_ids)
+}
+

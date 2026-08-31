@@ -478,6 +478,25 @@ impl VaultService {
         Ok(())
     }
 
+    pub fn delete_env_documents_batch(&self, env_ids: &[String]) -> AppResult<()> {
+        if env_ids.is_empty() {
+            return Ok(());
+        }
+
+        let master_key = self.session.lock().get_master_key()?;
+        let mut snapshot = self.repo.load_snapshot(&master_key)?;
+
+        let id_set: std::collections::HashSet<_> = env_ids.iter().map(|s| s.as_str()).collect();
+        snapshot.env_documents.retain(|d| !id_set.contains(d.id.as_str()));
+        for id in env_ids {
+            snapshot.secrets.remove(id);
+        }
+
+        self.repo.save_snapshot(&master_key, &snapshot)?;
+        Ok(())
+    }
+
+
     // Direct access to snapshot for backup/restore operations
     pub fn get_snapshot(&self) -> AppResult<VaultSnapshot> {
         let master_key = self.session.lock().get_master_key()?;
@@ -547,5 +566,23 @@ mod tests {
         assert_eq!(service.get_state(), VaultSessionState::Unlocked);
         let read_after_unlock = service.read_env_document(&doc.id).unwrap();
         assert_eq!(read_after_unlock.raw_text, updated_content);
+
+        // Test Batch Delete
+        let doc2 = service
+            .create_env_document(&project.id, ".env.production", "PROD=true\n")
+            .unwrap();
+        let doc3 = service
+            .create_env_document(&project.id, ".env.staging", "STAGING=true\n")
+            .unwrap();
+
+        assert_eq!(service.list_env_documents(&project.id).unwrap().len(), 3);
+        service
+            .delete_env_documents_batch(&[doc.id.clone(), doc2.id.clone()])
+            .unwrap();
+
+        let remaining = service.list_env_documents(&project.id).unwrap();
+        assert_eq!(remaining.len(), 1);
+        assert_eq!(remaining[0].id, doc3.id);
     }
 }
+
