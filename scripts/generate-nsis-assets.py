@@ -1,9 +1,10 @@
 import os
 from PIL import Image, ImageDraw, ImageFont
 
-WORKSPACE = r"c:\Users\emir\Desktop\Env_Vault"
+WORKSPACE = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 ICONS_DIR = os.path.join(WORKSPACE, "src-tauri", "icons")
 ICON_PNG_PATH = os.path.join(ICONS_DIR, "icon.png")
+
 
 print("Generating high-fidelity NSIS Header (150x57) and Sidebar (164x314) bitmaps...")
 

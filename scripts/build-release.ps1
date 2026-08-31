@@ -99,14 +99,31 @@ if (Test-Path $zipTarget) {
 }
 tar.exe -a -c -f "$zipTarget" -C "$releaseDir" "Env-Vault-1.0.0-Windows-x64-Portable.exe" -C "$rootDir" "LICENSE"
 
-Write-Host "[6/6] SHA-256 Checksum Listesi Üretiliyor..." -ForegroundColor Yellow
+Write-Host "[6/6] SHA-256 Checksum Listesi ve Release Notes Güncelleniyor..." -ForegroundColor Yellow
 $files = Get-ChildItem -Path $releaseDir -File | Where-Object { $_.Name -like "Env-Vault-1.0.0-*" }
+$hashDict = @{}
 $lines = foreach ($file in $files) {
     $hash = (Get-FileHash -Path $file.FullName -Algorithm SHA256).Hash.ToLower()
+    $hashDict[$file.Name] = $hash
     "$hash  $($file.Name)"
 }
 $checksumPath = Join-Path $releaseDir "SHA256SUMS.txt"
 $lines | Out-File -FilePath $checksumPath -Encoding UTF8 -Force
+
+# Update RELEASE-NOTES.md SHA-256 table
+$notesPath = Join-Path $releaseDir "RELEASE-NOTES.md"
+if (Test-Path $notesPath) {
+    $notesContent = Get-Content -Path $notesPath -Raw -Encoding UTF8
+    foreach ($item in $hashDict.GetEnumerator()) {
+        $escName = [regex]::Escape($item.Key)
+        $pattern = '\*\*' + $escName + '\*\*\s*\|\s*([^\|]+)\s*\|\s*`[a-f0-9]+`'
+        $replacement = '**' + $item.Key + '** | `${1} | `' + $item.Value + '`'
+        $notesContent = [regex]::Replace($notesContent, $pattern, $replacement)
+    }
+    $notesContent | Out-File -FilePath $notesPath -Encoding UTF8 -Force
+    Write-Host "[OK] RELEASE-NOTES.md sağlama toplamları güncellendi." -ForegroundColor Green
+}
+
 
 Write-Host ""
 Write-Host "===============================================================================" -ForegroundColor Green

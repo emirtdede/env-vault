@@ -1,11 +1,12 @@
 import os
 import re
 
-WORKSPACE = r"c:\Users\emir\Desktop\Env_Vault"
+WORKSPACE = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 NSI_PATH = os.path.join(WORKSPACE, "src-tauri", "target", "release", "nsis", "x64", "installer.nsi")
 ICON_PATH = os.path.join(WORKSPACE, "src-tauri", "icons", "icon.ico")
 HEADER_PATH = os.path.join(WORKSPACE, "src-tauri", "icons", "nsis-header.bmp")
 SIDEBAR_PATH = os.path.join(WORKSPACE, "src-tauri", "icons", "nsis-sidebar.bmp")
+
 
 if not os.path.exists(NSI_PATH):
     print("NSI script not found.")

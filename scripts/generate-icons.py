@@ -1,10 +1,31 @@
 import os
 import subprocess
+import shutil
 from PIL import Image
 
-WORKSPACE = r"c:\Users\emir\Desktop\Env_Vault"
+# Dynamic workspace resolution
+WORKSPACE = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 ICONS_DIR = os.path.join(WORKSPACE, "src-tauri", "icons")
-CHROME_PATH = r"C:\Program Files\Google\Chrome\Application\chrome.exe"
+os.makedirs(ICONS_DIR, exist_ok=True)
+
+# Find Chrome executable
+def find_chrome():
+    candidates = [
+        r"C:\Program Files\Google\Chrome\Application\chrome.exe",
+        r"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe",
+        os.path.expandvars(r"%LOCALAPPDATA%\Google\Chrome\Application\chrome.exe"),
+        r"C:\Program Files\Microsoft\Edge\Application\msedge.exe",
+        r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe",
+    ]
+    for c in candidates:
+        if os.path.exists(c):
+            return c
+    which_chrome = shutil.which("chrome") or shutil.which("msedge")
+    if which_chrome:
+        return which_chrome
+    raise FileNotFoundError("Chrome veya Edge tarayıcısı bulunamadı.")
+
+CHROME_PATH = find_chrome()
 
 svg_content = """<!DOCTYPE html>
 <html>
@@ -215,7 +236,7 @@ png_1024_path = os.path.join(WORKSPACE, "scripts", "temp_icon_1024.png")
 with open(html_path, "w", encoding="utf-8") as f:
     f.write(svg_content)
 
-print("Capturing 1024x1024 transparent PNG via Chrome headless...")
+print(f"Capturing 1024x1024 transparent master PNG using {CHROME_PATH}...")
 subprocess.run([
     CHROME_PATH,
     "--headless",
@@ -230,40 +251,184 @@ subprocess.run([
 print("Processing master icon with Pillow...")
 master_img = Image.open(png_1024_path).convert("RGBA")
 
-# Standard Tauri sizes
-sizes = {
-    "16x16.png": (16, 16),
-    "24x24.png": (24, 24),
-    "32x32.png": (32, 32),
-    "48x48.png": (48, 48),
-    "64x64.png": (64, 64),
-    "128x128.png": (128, 128),
-    "128x128@2x.png": (256, 256),
-    "256x256.png": (256, 256),
-    "icon.png": (512, 512),
-    "Square30x30Logo.png": (30, 30),
-    "Square44x44Logo.png": (44, 44),
-    "Square71x71Logo.png": (71, 71),
-    "Square89x89Logo.png": (89, 89),
-    "Square107x107Logo.png": (107, 107),
-    "Square142x142Logo.png": (142, 142),
-    "Square150x150Logo.png": (150, 150),
-    "Square284x284Logo.png": (284, 284),
-    "Square310x310Logo.png": (310, 310),
-    "StoreLogo.png": (50, 50),
+# Helper to save square resized icon
+def save_square_icon(filename, size):
+    target = os.path.join(ICONS_DIR, filename)
+    resized = master_img.resize((size, size), Image.Resampling.LANCZOS)
+    resized.save(target, "PNG")
+
+# Helper to save centered icon on non-square transparent canvas (Wide Tile & SplashScreen)
+def save_centered_icon(filename, canvas_w, canvas_h, icon_h_ratio=0.75):
+    target = os.path.join(ICONS_DIR, filename)
+    canvas = Image.new("RGBA", (canvas_w, canvas_h), (0, 0, 0, 0))
+    icon_h = int(canvas_h * icon_h_ratio)
+    icon_w = icon_h
+    resized = master_img.resize((icon_w, icon_h), Image.Resampling.LANCZOS)
+    x = (canvas_w - icon_w) // 2
+    y = (canvas_h - icon_h) // 2
+    canvas.paste(resized, (x, y), resized)
+    canvas.save(target, "PNG")
+
+# ==============================================================================
+# 1. Standard Tauri & Core Desktop Icons
+# ==============================================================================
+standard_sizes = {
+    "16x16.png": 16,
+    "24x24.png": 24,
+    "32x32.png": 32,
+    "48x48.png": 48,
+    "64x64.png": 64,
+    "128x128.png": 128,
+    "128x128@2x.png": 256,
+    "256x256.png": 256,
+    "icon.png": 512,
+    "Square30x30Logo.png": 30,
 }
 
-for filename, dim in sizes.items():
-    resized = master_img.resize(dim, Image.Resampling.LANCZOS)
-    target = os.path.join(ICONS_DIR, filename)
-    resized.save(target, "PNG")
-    print(f"Saved {filename} ({dim[0]}x{dim[1]})")
+for name, size in standard_sizes.items():
+    save_square_icon(name, size)
 
-# Create multi-resolution icon.ico
+# ==============================================================================
+# 2. Microsoft Store Listing Assets (Partner Center)
+# ==============================================================================
+# 1:1 App Tile Icon (Zorunlu / Mağaza Vitrin Logosu - 300x300)
+save_square_icon("StoreLogo300x300.png", 300)
+save_square_icon("StoreLogo.png", 50)
+
+# StoreLogo Scale Variants (50x50 base)
+store_logo_scales = {
+    "StoreLogo.scale-100.png": 50,
+    "StoreLogo.scale-125.png": 63,
+    "StoreLogo.scale-150.png": 75,
+    "StoreLogo.scale-200.png": 100,
+    "StoreLogo.scale-400.png": 200,
+}
+for name, size in store_logo_scales.items():
+    save_square_icon(name, size)
+
+# ==============================================================================
+# 3. Square44x44Logo (App List, Taskbar, Search, Start Pins)
+# ==============================================================================
+# Base & Scales
+save_square_icon("Square44x44Logo.png", 44)
+sq44_scales = {
+    "Square44x44Logo.scale-100.png": 44,
+    "Square44x44Logo.scale-125.png": 55,
+    "Square44x44Logo.scale-150.png": 66,
+    "Square44x44Logo.scale-200.png": 88,
+    "Square44x44Logo.scale-400.png": 176,
+}
+for name, size in sq44_scales.items():
+    save_square_icon(name, size)
+
+# Target Sizes (Raw physical pixels for exact taskbar/system tray rendering)
+target_sizes = [16, 20, 24, 30, 32, 36, 40, 48, 60, 64, 72, 80, 96, 256]
+
+for ts in target_sizes:
+    # Standard target size
+    save_square_icon(f"Square44x44Logo.targetsize-{ts}.png", ts)
+    # Altform Unplated (Transparent background for dark theme taskbar - NO square plate!)
+    save_square_icon(f"Square44x44Logo.altform-unplated_targetsize-{ts}.png", ts)
+    # Altform Light Unplated (Transparent background for light theme taskbar)
+    save_square_icon(f"Square44x44Logo.altform-lightunplated_targetsize-{ts}.png", ts)
+
+# ==============================================================================
+# 4. Square150x150Logo (Medium Tile / Start Menu)
+# ==============================================================================
+save_square_icon("Square150x150Logo.png", 150)
+sq150_scales = {
+    "Square150x150Logo.scale-100.png": 150,
+    "Square150x150Logo.scale-125.png": 188,
+    "Square150x150Logo.scale-150.png": 225,
+    "Square150x150Logo.scale-200.png": 300,
+    "Square150x150Logo.scale-400.png": 600,
+}
+for name, size in sq150_scales.items():
+    save_square_icon(name, size)
+
+# ==============================================================================
+# 5. Square71x71Logo (Small Tile)
+# ==============================================================================
+save_square_icon("Square71x71Logo.png", 71)
+sq71_scales = {
+    "Square71x71Logo.scale-100.png": 71,
+    "Square71x71Logo.scale-125.png": 89,
+    "Square71x71Logo.scale-150.png": 107,
+    "Square71x71Logo.scale-200.png": 142,
+    "Square71x71Logo.scale-400.png": 284,
+}
+for name, size in sq71_scales.items():
+    save_square_icon(name, size)
+
+# Backward compatible names
+save_square_icon("Square89x89Logo.png", 89)
+save_square_icon("Square107x107Logo.png", 107)
+save_square_icon("Square142x142Logo.png", 142)
+save_square_icon("Square284x284Logo.png", 284)
+
+# ==============================================================================
+# 6. Square310x310Logo (Large Tile)
+# ==============================================================================
+save_square_icon("Square310x310Logo.png", 310)
+sq310_scales = {
+    "Square310x310Logo.scale-100.png": 310,
+    "Square310x310Logo.scale-125.png": 388,
+    "Square310x310Logo.scale-150.png": 465,
+    "Square310x310Logo.scale-200.png": 620,
+    "Square310x310Logo.scale-400.png": 1240,
+}
+for name, size in sq310_scales.items():
+    save_square_icon(name, size)
+
+# ==============================================================================
+# 7. Wide310x150Logo (Wide Tile - 2:1 Aspect Ratio)
+# ==============================================================================
+save_centered_icon("Wide310x150Logo.png", 310, 150, icon_h_ratio=0.85)
+wide_scales = {
+    "Wide310x150Logo.scale-100.png": (310, 150),
+    "Wide310x150Logo.scale-125.png": (388, 188),
+    "Wide310x150Logo.scale-150.png": (465, 225),
+    "Wide310x150Logo.scale-200.png": (620, 300),
+    "Wide310x150Logo.scale-400.png": (1240, 600),
+}
+for name, (w, h) in wide_scales.items():
+    save_centered_icon(name, w, h, icon_h_ratio=0.85)
+
+# ==============================================================================
+# 8. SplashScreen (620x300 Base Aspect Ratio)
+# ==============================================================================
+save_centered_icon("SplashScreen.png", 620, 300, icon_h_ratio=0.7)
+splash_scales = {
+    "SplashScreen.scale-100.png": (620, 300),
+    "SplashScreen.scale-125.png": (775, 375),
+    "SplashScreen.scale-150.png": (930, 450),
+    "SplashScreen.scale-200.png": (1240, 600),
+    "SplashScreen.scale-400.png": (2480, 1200),
+}
+for name, (w, h) in splash_scales.items():
+    save_centered_icon(name, w, h, icon_h_ratio=0.7)
+
+# ==============================================================================
+# 9. BadgeLogo (24x24 Base Aspect Ratio)
+# ==============================================================================
+save_square_icon("BadgeLogo.png", 24)
+badge_scales = {
+    "BadgeLogo.scale-100.png": 24,
+    "BadgeLogo.scale-125.png": 30,
+    "BadgeLogo.scale-150.png": 36,
+    "BadgeLogo.scale-200.png": 48,
+    "BadgeLogo.scale-400.png": 96,
+}
+for name, size in badge_scales.items():
+    save_square_icon(name, size)
+
+# ==============================================================================
+# 10. Multi-Resolution Win32 icon.ico
+# ==============================================================================
 ico_sizes = [(16, 16), (24, 24), (32, 32), (48, 48), (64, 64), (128, 128), (256, 256)]
 ico_target = os.path.join(ICONS_DIR, "icon.ico")
 master_img.save(ico_target, format="ICO", sizes=ico_sizes)
-print(f"Saved icon.ico with sizes: {ico_sizes}")
+print(f"Saved multi-resolution icon.ico with sizes: {ico_sizes}")
 
 # Clean up temp files
 if os.path.exists(html_path):
@@ -271,4 +436,5 @@ if os.path.exists(html_path):
 if os.path.exists(png_1024_path):
     os.remove(png_1024_path)
 
-print("Icon generation completed successfully!")
+print(f"SUCCESS: All Microsoft Store & Windows Visual Assets generated in {ICONS_DIR}!")
+
