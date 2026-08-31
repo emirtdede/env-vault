@@ -38,3 +38,4 @@
 | **`Env-Vault-1.0.0-Windows-x64-Portable.zip`** | Taşınabilir ZIP Paketi | `46c20ac96278d839ca7dea7f158d614b2f3e4df65de783beecda4095b631be7a` |
 
 
+
