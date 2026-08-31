@@ -14,9 +14,12 @@ export async function openExternalUrl(url: string, e?: React.MouseEvent): Promis
   try {
     await invoke("open_external_url", { url });
   } catch (err) {
-    console.warn("Tauri invoke('open_external_url') failed, falling back to window.open:", err);
+    if (import.meta.env.DEV) {
+      console.warn("Tauri invoke('open_external_url') failed, falling back to window.open:", err);
+    }
     try {
       window.open(url, "_blank", "noopener,noreferrer");
     } catch {}
   }
+
 }

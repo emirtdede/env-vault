@@ -31,12 +31,13 @@ export interface EnvDocumentCardProps {
   selectionMode?: boolean;
 }
 
-export const EnvDocumentCard: React.FC<EnvDocumentCardProps> = ({
+export const EnvDocumentCard: React.FC<EnvDocumentCardProps> = React.memo(({
   document,
   isSelected = false,
   onToggleSelect,
   selectionMode = false,
 }) => {
+
   const { t, language } = useTranslation();
   const [isExporting, setIsExporting] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
@@ -399,4 +400,5 @@ export const EnvDocumentCard: React.FC<EnvDocumentCardProps> = ({
       )}
     </>
   );
-};
+});
+

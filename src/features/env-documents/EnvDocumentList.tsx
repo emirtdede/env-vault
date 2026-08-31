@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import {
   FileText,
   CheckSquare,
@@ -35,6 +35,27 @@ export const EnvDocumentList: React.FC = () => {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [isExporting, setIsExporting] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
+  const feedbackTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (feedbackTimerRef.current) {
+        clearTimeout(feedbackTimerRef.current);
+        feedbackTimerRef.current = null;
+      }
+    };
+  }, []);
+
+  const triggerFeedback = useCallback((msg: string) => {
+    if (feedbackTimerRef.current) {
+      clearTimeout(feedbackTimerRef.current);
+    }
+    setFeedback(msg);
+    feedbackTimerRef.current = setTimeout(() => {
+      setFeedback(null);
+      feedbackTimerRef.current = null;
+    }, 3000);
+  }, []);
 
   useEffect(() => {
     if (selectedProjectId) {
@@ -104,13 +125,11 @@ export const EnvDocumentList: React.FC = () => {
         "overwrite"
       );
 
-      setFeedback(language === "tr" ? `${report.exportedCount} ortam dosyası dışa aktarıldı` : `${report.exportedCount} environment files exported`);
-      setTimeout(() => setFeedback(null), 3000);
+      triggerFeedback(language === "tr" ? `${report.exportedCount} ortam dosyası dışa aktarıldı` : `${report.exportedCount} environment files exported`);
       setSelectionMode(false);
       setSelectedIds(new Set());
     } catch {
-      setFeedback(language === "tr" ? "Dışa aktarma sırasında hata oluştu" : "Export failed");
-      setTimeout(() => setFeedback(null), 3000);
+      triggerFeedback(language === "tr" ? "Dışa aktarma sırasında hata oluştu" : "Export failed");
     } finally {
       setIsExporting(false);
     }
@@ -131,16 +150,16 @@ export const EnvDocumentList: React.FC = () => {
       onConfirm: async () => {
         try {
           await deleteDocumentsBatch(idsToDelete);
-          setFeedback(language === "tr" ? `${idsToDelete.length} dosya kasadan silindi` : `${idsToDelete.length} files deleted from vault`);
+          triggerFeedback(language === "tr" ? `${idsToDelete.length} dosya kasadan silindi` : `${idsToDelete.length} files deleted from vault`);
         } catch {
-          setFeedback(language === "tr" ? "Dosyalar silinirken hata oluştu" : "Failed to delete files");
+          triggerFeedback(language === "tr" ? "Dosyalar silinirken hata oluştu" : "Failed to delete files");
         }
-        setTimeout(() => setFeedback(null), 3000);
         setSelectedIds(new Set());
         setSelectionMode(false);
       },
     });
   };
+
 
 
   return (

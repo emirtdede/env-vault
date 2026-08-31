@@ -98,8 +98,18 @@ export const App: React.FC = () => {
       } else if (e.ctrlKey && e.key.toLowerCase() === "s" && activeDocId) {
         e.preventDefault();
         saveEditor().catch(() => {});
+      } else if (e.ctrlKey && e.key.toLowerCase() === "f") {
+        e.preventDefault();
+        const searchInput = document.querySelector<HTMLInputElement>(
+          "input[type='search'], input[placeholder*='Ara'], input[placeholder*='Search']"
+        );
+        if (searchInput) {
+          searchInput.focus();
+          searchInput.select();
+        }
       }
     };
+
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
