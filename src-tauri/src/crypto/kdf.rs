@@ -39,14 +39,14 @@ pub fn derive_key(
         params.lanes,
         Some(DERIVED_KEY_LEN),
     )
-    .map_err(|e| AppError::Custom(format!("Argon2 parametre hatası: {e}")))?;
+    .map_err(|e| AppError::Custom(format!("Argon2 parameter error: {e}")))?;
 
     let argon2 = Argon2::new(Algorithm::Argon2id, Version::V0x13, argon_params);
     let mut key = [0u8; DERIVED_KEY_LEN];
 
     argon2
         .hash_password_into(password.as_ref(), salt, &mut key)
-        .map_err(|e| AppError::Custom(format!("Anahtar türetme hatası: {e}")))?;
+        .map_err(|e| AppError::Custom(format!("Key derivation failed: {e}")))?;
 
     Ok(key)
 }

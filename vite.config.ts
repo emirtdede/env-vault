@@ -32,5 +32,19 @@ export default defineConfig({
     target: "es2022",
     minify: !process.env.TAURI_ENV_DEBUG ? "esbuild" : false,
     sourcemap: !!process.env.TAURI_ENV_DEBUG,
+    chunkSizeWarningLimit: 700,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (!id.includes("node_modules")) return undefined;
+          if (/[\\/]node_modules[\\/](react|react-dom|scheduler)[\\/]/.test(id)) return "react-vendor";
+          if (/[\\/]node_modules[\\/](@codemirror|codemirror)[\\/]/.test(id)) return "editor";
+          if (/[\\/]node_modules[\\/]lucide-react[\\/]/.test(id)) return "icons";
+          if (/[\\/]node_modules[\\/]@tauri-apps[\\/]/.test(id)) return "tauri";
+          if (/[\\/]node_modules[\\/](zustand|immer)[\\/]/.test(id)) return "state";
+          return "vendor";
+        },
+      },
+    },
   },
 });

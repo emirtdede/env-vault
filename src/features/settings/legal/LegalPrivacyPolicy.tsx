@@ -105,8 +105,8 @@ export const LegalPrivacyPolicy: React.FC = () => {
         }}
       >
         {isTr
-          ? "Son güncelleme: 30 Ağustos 2026 — Vellium Mühendislik & Güvenlik Birimi"
-          : "Last updated: August 30, 2026 — Vellium Engineering & Security Team"}
+          ? "Son güncelleme: 30 Ağustos 2026 - Vellium Mühendislik & Güvenlik Birimi"
+          : "Last updated: August 30, 2026 - Vellium Engineering & Security Team"}
       </div>
     </div>
   );

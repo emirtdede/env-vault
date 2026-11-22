@@ -43,7 +43,7 @@ export const useProjectStore = create<ProjectStoreState>((set, get) => ({
 
       set({ projects, selectedProjectId, isLoading: false });
     } catch (err: unknown) {
-      const msg = (err as { message?: string })?.message || "Projeler yüklenemedi.";
+      const msg = (err as { message?: string })?.message || "Projects could not be loaded.";
       set({ error: msg, isLoading: false });
     }
   },
@@ -63,7 +63,7 @@ export const useProjectStore = create<ProjectStoreState>((set, get) => ({
       }));
       return project;
     } catch (err: unknown) {
-      const msg = (err as { message?: string })?.message || "Proje oluşturulamadı.";
+      const msg = (err as { message?: string })?.message || "Project could not be created.";
       set({ error: msg, isLoading: false });
       throw err;
     }
@@ -79,7 +79,7 @@ export const useProjectStore = create<ProjectStoreState>((set, get) => ({
       }));
       return updated;
     } catch (err: unknown) {
-      const msg = (err as { message?: string })?.message || "Proje güncellenemedi.";
+      const msg = (err as { message?: string })?.message || "Project could not be updated.";
       set({ error: msg, isLoading: false });
       throw err;
     }
@@ -104,7 +104,7 @@ export const useProjectStore = create<ProjectStoreState>((set, get) => ({
         };
       });
     } catch (err: unknown) {
-      const msg = (err as { message?: string })?.message || "Proje silinemedi.";
+      const msg = (err as { message?: string })?.message || "Project could not be deleted.";
       set({ error: msg, isLoading: false });
       throw err;
     }

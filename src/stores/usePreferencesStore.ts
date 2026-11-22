@@ -1,24 +1,31 @@
 import { create } from "zustand";
-import { AppSettings, Language, ThemeType } from "../types";
+import { AppSettings, Language } from "../types";
 
 interface PreferencesState extends AppSettings {
-  setTheme: (theme: ThemeType) => void;
-  setLanguage: (language: Language) => void;
-  setAutoLockMinutes: (minutes: AppSettings["autoLockMinutes"]) => void;
-  setAutoUnlockWithWindows: (enabled: boolean) => void;
-  setAutoHideSecrets: (enabled: boolean) => void;
-  setClearClipboardSeconds: (seconds: number) => void;
-  setAskExportLocation: (enabled: boolean) => void;
-  setDefaultExportDirectory: (directory: string | null) => void;
-  setExportCollisionPolicy: (policy: AppSettings["exportCollisionPolicy"]) => void;
-  setCloseAction: (action: AppSettings["closeAction"]) => void;
-  setReduceMotion: (enabled: boolean) => void;
   updateSettings: (settings: Partial<AppSettings>) => void;
+}
+
+function detectSystemLanguage(catalog: readonly string[]): Language {
+  if (typeof navigator === "undefined") return "en";
+  const candidates = [
+    ...(navigator.languages ?? []),
+    navigator.language,
+  ].filter(Boolean) as string[];
+
+  for (const raw of candidates) {
+    const normalized = raw.toLowerCase().replace("_", "-");
+    if (catalog.includes(normalized)) return normalized;
+    const base = normalized.split("-")[0] ?? normalized;
+    if (catalog.includes(base)) return base;
+    if (base === "nb" && catalog.includes("no")) return "no";
+    if (base === "zh" && catalog.includes("zh")) return "zh";
+  }
+  return "en";
 }
 
 export const defaultSettings: AppSettings = {
   theme: "siyah",
-  language: "tr",
+  language: "en",
   autoLockMinutes: 15,
   autoUnlockWithWindows: false,
   autoHideSecrets: true,
@@ -28,20 +35,50 @@ export const defaultSettings: AppSettings = {
   exportCollisionPolicy: "ask",
   closeAction: "ask",
   reduceMotion: false,
+  customAccent: "#0A84FF",
+  followSystemTheme: false,
+  iconTheme: "obsidian",
+  uiScale: 100,
+  startWithWindows: false,
+  startMinimized: false,
+  globalShortcutEnabled: true,
+  notificationsEnabled: true,
+  notificationSound: true,
+  autoSyncEnabled: true,
+  onboardingCompleted: false,
 };
+
+export { detectSystemLanguage };
+
+/** Extracts only the serialisable preference fields from the store state. */
+export function toSettingsPayload(state: AppSettings): AppSettings {
+  return {
+    theme: state.theme,
+    language: state.language,
+    autoLockMinutes: state.autoLockMinutes,
+    autoUnlockWithWindows: state.autoUnlockWithWindows,
+    autoHideSecrets: state.autoHideSecrets,
+    clearClipboardSeconds: state.clearClipboardSeconds,
+    askExportLocation: state.askExportLocation,
+    defaultExportDirectory: state.defaultExportDirectory,
+    exportCollisionPolicy: state.exportCollisionPolicy,
+    closeAction: state.closeAction,
+    reduceMotion: state.reduceMotion,
+    customAccent: state.customAccent,
+    followSystemTheme: state.followSystemTheme,
+    iconTheme: state.iconTheme,
+    uiScale: state.uiScale,
+    startWithWindows: state.startWithWindows,
+    startMinimized: state.startMinimized,
+    globalShortcutEnabled: state.globalShortcutEnabled,
+    notificationsEnabled: state.notificationsEnabled,
+    notificationSound: state.notificationSound,
+    autoSyncEnabled: state.autoSyncEnabled,
+    onboardingCompleted: state.onboardingCompleted,
+  };
+}
 
 export const usePreferencesStore = create<PreferencesState>((set) => ({
   ...defaultSettings,
-  setTheme: (theme) => set({ theme }),
-  setLanguage: (language) => set({ language }),
-  setAutoLockMinutes: (autoLockMinutes) => set({ autoLockMinutes }),
-  setAutoUnlockWithWindows: (autoUnlockWithWindows) => set({ autoUnlockWithWindows }),
-  setAutoHideSecrets: (autoHideSecrets) => set({ autoHideSecrets }),
-  setClearClipboardSeconds: (clearClipboardSeconds) => set({ clearClipboardSeconds }),
-  setAskExportLocation: (askExportLocation) => set({ askExportLocation }),
-  setDefaultExportDirectory: (defaultExportDirectory) => set({ defaultExportDirectory }),
-  setExportCollisionPolicy: (exportCollisionPolicy) => set({ exportCollisionPolicy }),
-  setCloseAction: (closeAction) => set({ closeAction }),
-  setReduceMotion: (reduceMotion) => set({ reduceMotion }),
   updateSettings: (settings) => set((state) => ({ ...state, ...settings })),
 }));

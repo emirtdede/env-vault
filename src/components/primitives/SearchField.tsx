@@ -1,6 +1,7 @@
 import React from "react";
 import { Search, X } from "lucide-react";
 import { IconButton } from "./IconButton";
+import { useTranslation } from "../../i18n";
 
 export interface SearchFieldProps {
   value: string;
@@ -12,9 +13,13 @@ export interface SearchFieldProps {
 export const SearchField: React.FC<SearchFieldProps> = ({
   value,
   onChange,
-  placeholder = "Ara...",
-  ariaLabel = "Ara",
+  placeholder,
+  ariaLabel,
 }) => {
+  const { t } = useTranslation();
+  const resolvedPlaceholder = placeholder ?? t("common.search");
+  const resolvedLabel = ariaLabel ?? t("common.search");
+
   return (
     <div
       style={{
@@ -35,8 +40,9 @@ export const SearchField: React.FC<SearchFieldProps> = ({
       />
       <input
         type="text"
-        aria-label={ariaLabel}
-        placeholder={placeholder}
+        data-search-field
+        aria-label={resolvedLabel}
+        placeholder={resolvedPlaceholder}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         style={{
@@ -57,7 +63,7 @@ export const SearchField: React.FC<SearchFieldProps> = ({
         <span style={{ position: "absolute", right: "4px" }}>
           <IconButton
             icon={<X size={12} />}
-            aria-label="Aramayı Temizle"
+            aria-label={t("common.clearSearch")}
             size="sm"
             onClick={() => onChange("")}
           />

@@ -48,7 +48,7 @@ impl ImportService {
         let raw_filename = path
             .file_name()
             .and_then(|n| n.to_str())
-            .ok_or_else(|| AppError::Custom("Geçersiz dosya adı.".into()))?;
+            .ok_or_else(|| AppError::Custom("Invalid file name.".into()))?;
 
         validate_env_filename(raw_filename)?;
         let filename = raw_filename.to_string();
@@ -83,7 +83,7 @@ impl ImportService {
                 return Err(AppError::DuplicateFileName);
             }
             (Some(_), CollisionPolicy::Cancel) => {
-                return Err(AppError::Custom("İçe aktarma işlemi iptal edildi.".into()));
+                return Err(AppError::Custom("Import was cancelled.".into()));
             }
         };
 
@@ -125,7 +125,7 @@ impl ImportService {
                         .file_name()
                         .and_then(|n| n.to_str())
                         .unwrap_or("Dosya");
-                    errors.push(format!("{fname}: Dosya zaten mevcut (atlandı)."));
+                    errors.push(format!("{fname}: file already exists (skipped)."));
                 }
                 Err(err) => {
                     failed_count += 1;
@@ -156,7 +156,7 @@ impl ImportService {
         collision_policy: CollisionPolicy,
     ) -> AppResult<BatchImportReport> {
         if !dir_path.is_dir() {
-            return Err(AppError::Custom("Geçerli bir dizin seçilmedi.".into()));
+            return Err(AppError::Custom("No valid folder was selected.".into()));
         }
 
         let mut env_paths = Vec::new();
@@ -169,7 +169,7 @@ impl ImportService {
                 skipped_count: 0,
                 failed_count: 0,
                 results: Vec::new(),
-                errors: vec!["Klasörde herhangi bir .env dosyası bulunamadı.".into()],
+                errors: vec!["No .env files were found in the folder.".into()],
             });
         }
 
@@ -312,7 +312,7 @@ impl ImportService {
         }
 
         Err(AppError::Custom(
-            "Benzersiz bir dosya adı üretilemedi.".into(),
+            "Could not generate a unique file name.".into(),
         ))
     }
 }

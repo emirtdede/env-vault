@@ -16,13 +16,13 @@ pub fn validate_env_filename(filename: &str) -> AppResult<()> {
 
     if trimmed.contains('/') || trimmed.contains('\\') || trimmed.contains("..") {
         return Err(AppError::Custom(
-            "Dosya adı yol ayırıcıları veya geçiş karakterleri içeremez.".to_string(),
+            "File names cannot contain path separators or traversal characters.".to_string(),
         ));
     }
 
     if !trimmed.starts_with(".env") {
         return Err(AppError::Custom(
-            "Ortam dosyası adı '.env' ile başlamalıdır.".to_string(),
+            "Environment file name must start with '.env'.".to_string(),
         ));
     }
 
@@ -30,7 +30,7 @@ pub fn validate_env_filename(filename: &str) -> AppResult<()> {
     for reserved in WINDOWS_RESERVED_NAMES {
         if upper == *reserved || upper.starts_with(&format!("{}.", reserved)) {
             return Err(AppError::Custom(format!(
-                "'{}' Windows tarafından ayrılmış bir dosya adıdır.",
+                "'{}' is a reserved Windows file name.",
                 trimmed
             )));
         }

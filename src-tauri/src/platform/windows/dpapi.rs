@@ -60,7 +60,7 @@ pub fn dpapi_protect(plaintext: &[u8]) -> AppResult<Vec<u8>> {
     };
 
     if ret == 0 {
-        return Err(AppError::Crypto("DPAPI şifreleme başarısız oldu.".into()));
+        return Err(AppError::Crypto("DPAPI encryption failed.".into()));
     }
 
     let result = unsafe {
@@ -96,7 +96,7 @@ pub fn dpapi_unprotect(ciphertext: &[u8]) -> AppResult<Vec<u8>> {
     };
 
     if ret == 0 {
-        return Err(AppError::Crypto("DPAPI şifre çözme başarısız oldu.".into()));
+        return Err(AppError::Crypto("DPAPI decryption failed.".into()));
     }
 
     let result = unsafe {

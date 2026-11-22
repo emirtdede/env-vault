@@ -1,4 +1,5 @@
 pub mod backup;
+pub mod cloud;
 pub mod commands;
 pub mod crypto;
 pub mod env;
@@ -14,21 +15,47 @@ use std::path::PathBuf;
 use std::sync::Arc;
 
 use crate::backup::service::BackupService;
+use crate::cloud::sync::CloudService;
 use crate::commands::*;
 use crate::export::service::ExportService;
 use crate::import::service::ImportService;
+use crate::platform::system;
 use crate::settings::service::SettingsService;
 use crate::vault::repository::EncryptedFileRepository;
 use crate::vault::service::VaultService;
 
 use tauri::menu::{Menu, MenuItem};
 use tauri::tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent};
-use tauri::Manager;
+use tauri::{Emitter, Manager, RunEvent, WindowEvent};
 
 pub fn resolve_app_data_dir() -> PathBuf {
     dirs::data_local_dir()
         .unwrap_or_else(|| PathBuf::from("."))
         .join("EnvVault")
+}
+
+fn launched_minimized() -> bool {
+    std::env::args().any(|arg| arg == "--minimized")
+}
+
+/// Routes jump list and shortcut arguments into the running shell.
+fn dispatch_launch_args(app: &tauri::AppHandle, args: &[String]) {
+    for arg in args {
+        match arg.as_str() {
+            "--settings" => {
+                let _ = app.emit("navigate-settings", ());
+            }
+            "--new-project" => {
+                let _ = app.emit("navigate-new-project", ());
+            }
+            "--lock" => {
+                let vault = app.state::<Arc<VaultService>>();
+                vault.lock_vault();
+                let _ = app.emit("lock-vault", ());
+            }
+            _ => {}
+        }
+    }
 }
 
 pub fn run() {
@@ -40,6 +67,11 @@ pub fn run() {
     let export_service = Arc::new(ExportService::new(vault_service.clone()));
     let backup_service = Arc::new(BackupService::new(vault_service.clone()));
     let settings_service = Arc::new(SettingsService::new(&app_data_dir));
+    let cloud_service = Arc::new(CloudService::new(
+        app_data_dir.clone(),
+        vault_service.clone(),
+        settings_service.clone(),
+    ));
 
     // Synchronize auto lock duration from stored settings
     let initial_settings = settings_service.get_settings();
@@ -47,34 +79,56 @@ pub fn run() {
 
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
-        .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
+        .plugin(tauri_plugin_notification::init())
+        .plugin(
+            tauri_plugin_global_shortcut::Builder::new()
+                .with_handler(|app, _shortcut, event| {
+                    if event.state == tauri_plugin_global_shortcut::ShortcutState::Pressed {
+                        if let Some(window) = app.get_webview_window("main") {
+                            let _ = window.show();
+                            let _ = window.unminimize();
+                            let _ = window.set_focus();
+                        }
+                    }
+                })
+                .build(),
+        )
+        .plugin(tauri_plugin_single_instance::init(|app, args, _cwd| {
             if let Some(window) = app.get_webview_window("main") {
                 let _ = window.show();
                 let _ = window.unminimize();
                 let _ = window.set_focus();
             }
+            dispatch_launch_args(app, &args);
         }))
         .manage(vault_service)
         .manage(import_service)
         .manage(export_service)
         .manage(backup_service)
         .manage(settings_service)
-        .setup(|app| {
-            let show_i = MenuItem::with_id(app, "show", "Env Vault'ı Göster", true, None::<&str>)?;
-            let lock_i = MenuItem::with_id(app, "lock", "Kasayı Kilitle", true, None::<&str>)?;
-            let quit_i = MenuItem::with_id(app, "quit", "Uygulamadan Çık", true, None::<&str>)?;
-            let menu = Menu::with_items(app, &[&show_i, &lock_i, &quit_i])?;
+        .manage(cloud_service)
+        .setup(move |app| {
+            let show_i = MenuItem::with_id(app, "show", "Show Env Vault", true, None::<&str>)?;
+            let settings_i = MenuItem::with_id(app, "settings", "Settings", true, None::<&str>)?;
+            let lock_i = MenuItem::with_id(app, "lock", "Lock Vault", true, None::<&str>)?;
+            let sync_i = MenuItem::with_id(app, "sync", "Sync Now", true, None::<&str>)?;
+            let quit_i = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
+            let menu = Menu::with_items(
+                app,
+                &[&show_i, &settings_i, &lock_i, &sync_i, &quit_i],
+            )?;
 
-            let mut builder = TrayIconBuilder::new()
+            let mut builder = TrayIconBuilder::with_id("main-tray")
                 .menu(&menu)
                 .show_menu_on_left_click(false)
-                .tooltip("Env Vault — Güvenli Ortam Kasası");
+                .tooltip("Env Vault");
 
             if let Some(icon) = app.default_window_icon() {
                 builder = builder.icon(icon.clone());
             }
 
-            builder = builder.on_menu_event(|app, event| match event.id.as_ref() {
+            let _tray = builder
+                .on_menu_event(|app, event| match event.id.as_ref() {
                     "show" => {
                         if let Some(window) = app.get_webview_window("main") {
                             let _ = window.show();
@@ -82,55 +136,129 @@ pub fn run() {
                             let _ = window.set_focus();
                         }
                     }
+                    "settings" => {
+                        if let Some(window) = app.get_webview_window("main") {
+                            let _ = window.show();
+                            let _ = window.unminimize();
+                            let _ = window.set_focus();
+                        }
+                        let _ = app.emit("navigate-settings", ());
+                    }
                     "lock" => {
                         let vault_service = app.state::<Arc<VaultService>>();
                         vault_service.lock_vault();
+                        let _ = app.emit("lock-vault", ());
                         if let Some(window) = app.get_webview_window("main") {
                             let _ = window.show();
                             let _ = window.unminimize();
                             let _ = window.set_focus();
                         }
                     }
+                    "sync" => {
+                        let cloud = app.state::<Arc<CloudService>>();
+                        let _ = cloud.sync_now();
+                    }
                     "quit" => {
+                        let cloud = app.state::<Arc<CloudService>>();
+                        let _ = cloud.sync_now();
                         app.exit(0);
                     }
                     _ => {}
                 })
-                .on_tray_icon_event(|tray, event| {
-                    match event {
-                        TrayIconEvent::Click {
-                            button: MouseButton::Left,
-                            button_state: MouseButtonState::Up,
-                            ..
-                        }
-                        | TrayIconEvent::DoubleClick {
-                            button: MouseButton::Left,
-                            ..
-                        } => {
-                            let app = tray.app_handle();
-                            if let Some(window) = app.get_webview_window("main") {
-                                let is_visible = window.is_visible().unwrap_or(false);
-                                let is_minimized = window.is_minimized().unwrap_or(false);
-                                if is_visible && !is_minimized {
-                                    let _ = window.hide();
-                                } else {
-                                    let _ = window.show();
-                                    let _ = window.unminimize();
-                                    let _ = window.set_focus();
-                                }
+                .on_tray_icon_event(|tray, event| match event {
+                    TrayIconEvent::Click {
+                        button: MouseButton::Left,
+                        button_state: MouseButtonState::Up,
+                        ..
+                    }
+                    | TrayIconEvent::DoubleClick {
+                        button: MouseButton::Left,
+                        ..
+                    } => {
+                        let app = tray.app_handle();
+                        if let Some(window) = app.get_webview_window("main") {
+                            let is_visible = window.is_visible().unwrap_or(false);
+                            let is_minimized = window.is_minimized().unwrap_or(false);
+                            if is_visible && !is_minimized {
+                                let _ = window.hide();
+                            } else {
+                                let _ = window.show();
+                                let _ = window.unminimize();
+                                let _ = window.set_focus();
                             }
                         }
-                        _ => {}
                     }
-                });
+                    _ => {}
+                })
+                .build(app)?;
 
-            if let Some(icon) = app.default_window_icon() {
-                builder = builder.icon(icon.clone());
+            // Apply the persisted icon pack on first paint.
+            let app_data = resolve_app_data_dir();
+            let theme = match initial_settings.icon_theme {
+                crate::settings::models::IconTheme::Porcelain => "porcelain",
+                crate::settings::models::IconTheme::Contrast => "contrast",
+                crate::settings::models::IconTheme::Cyan => "cyan",
+                _ => "obsidian",
+            };
+            if let Ok(path) = system::materialize_icon(&app_data, theme) {
+                if let Ok(bytes) = std::fs::read(path) {
+                    if let Ok(image) = tauri::image::Image::from_bytes(&bytes) {
+                        if let Some(window) = app.get_webview_window("main") {
+                            let _ = window.set_icon(image.clone());
+                        }
+                        if let Some(tray) = app.tray_by_id("main-tray") {
+                            let _ = tray.set_icon(Some(image));
+                        }
+                    }
+                }
             }
 
-            let _tray = builder.build(app)?;
+            if initial_settings.start_with_windows || initial_settings.global_shortcut_enabled {
+                let _ = system::set_startup(
+                    initial_settings.start_with_windows,
+                    initial_settings.start_minimized,
+                );
+            }
+
+            if initial_settings.global_shortcut_enabled {
+                use tauri_plugin_global_shortcut::GlobalShortcutExt;
+                if let Ok(shortcut) = crate::commands::system_commands::DEFAULT_SHORTCUT
+                    .parse::<tauri_plugin_global_shortcut::Shortcut>()
+                {
+                    let _ = app.global_shortcut().register(shortcut);
+                }
+            }
+
+            if launched_minimized() {
+                if let Some(window) = app.get_webview_window("main") {
+                    let _ = window.hide();
+                }
+            }
+
+            let _ = system::apply_jump_list(&app_data, theme);
+            let startup_args: Vec<String> = std::env::args().collect();
+            dispatch_launch_args(app.handle(), &startup_args);
 
             Ok(())
+        })
+        .on_window_event(|window, event| {
+            if let WindowEvent::CloseRequested { api, .. } = event {
+                let settings_service = window.state::<Arc<SettingsService>>();
+                let settings = settings_service.get_settings();
+                match settings.close_action {
+                    crate::settings::models::CloseAction::MinimizeToTray => {
+                        api.prevent_close();
+                        let _ = window.hide();
+                    }
+                    crate::settings::models::CloseAction::Ask => {
+                        // Let the shell decide, so Alt+F4 follows the same rules
+                        // as the custom close button.
+                        api.prevent_close();
+                        let _ = window.emit("close-requested", ());
+                    }
+                    crate::settings::models::CloseAction::CloseApp => {}
+                }
+            }
         })
         .invoke_handler(tauri::generate_handler![
             // Vault Commands
@@ -172,14 +300,39 @@ pub fn run() {
             // Settings Commands
             get_settings,
             update_settings,
+            sync_setting_side_effects,
             // Window Commands
             hide_to_tray,
             show_from_tray,
             exit_application,
             open_external_url,
+            // System Commands
+            get_system_info,
+            set_start_with_windows,
+            apply_app_icon,
+            set_global_shortcut,
+            send_test_notification,
+            show_main_window,
+            // Cloud Commands
+            cloud_status,
+            cloud_providers,
+            cloud_connect,
+            cloud_disconnect,
+            cloud_set_auto_sync,
+            cloud_set_folder,
+            cloud_sync_now,
+            cloud_restore,
+            cloud_detect_restore,
+            cloud_open_folder,
         ])
-        .run(tauri::generate_context!())
-        .expect("Env Vault başlatılırken beklenmeyen bir hata oluştu");
+        .build(tauri::generate_context!())
+        .expect("Env Vault failed to start")
+        .run(|app, event| {
+            if let RunEvent::ExitRequested { .. } | RunEvent::Exit = event {
+                let cloud = app.state::<Arc<CloudService>>();
+                let _ = cloud.sync_now();
+            }
+        });
 }
 
 #[cfg(test)]

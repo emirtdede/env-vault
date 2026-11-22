@@ -182,7 +182,7 @@ impl ExportService {
         };
 
         let mut combined_text = format!(
-            "# ====================================================================\n# Env Vault - Birleşik Ortam Dosyası Dışa Aktarımı\n# Proje: {}\n# Dışa Aktarma Tarihi: {}\n# ====================================================================\n\n",
+            "# ====================================================================\n# Env Vault - Combined environment file export\n# Project: {}\n# Export date: {}\n# ====================================================================\n\n",
             project.name,
             chrono::Utc::now().to_rfc3339()
         );
@@ -190,7 +190,7 @@ impl ExportService {
         for doc in &docs {
             let (_, payload) = self.vault_service.get_env_document_and_payload(&doc.id)?;
             combined_text.push_str(&format!(
-                "# --------------------------------------------------------------------\n# [Dosya: {}] ({} değişken)\n# --------------------------------------------------------------------\n{}\n\n",
+                "# --------------------------------------------------------------------\n# [File: {}] ({} variables)\n# --------------------------------------------------------------------\n{}\n\n",
                 doc.filename,
                 doc.key_count,
                 payload.raw_text.trim_end()
@@ -226,10 +226,10 @@ impl ExportService {
                         return Ok(candidate);
                     }
                 }
-                Err(AppError::Custom("Yeni dosya adı üretilemedi.".into()))
+                Err(AppError::Custom("Could not generate a new file name.".into()))
             }
             CollisionPolicy::Cancel => Err(AppError::Conflict(
-                "Hedef dosya zaten mevcut ve işlem iptal edildi.".into(),
+                "Destination file already exists and the operation was cancelled.".into(),
             )),
             CollisionPolicy::Ask => Ok(target.to_path_buf()),
         }
@@ -238,7 +238,7 @@ impl ExportService {
     fn atomic_write_file(destination: &Path, data: &[u8]) -> AppResult<()> {
         let parent = destination
             .parent()
-            .ok_or_else(|| AppError::Custom("Geçersiz hedef yolu.".into()))?;
+            .ok_or_else(|| AppError::Custom("Invalid destination path.".into()))?;
 
         let mut temp_file = NamedTempFile::new_in(parent)?;
         temp_file.write_all(data)?;

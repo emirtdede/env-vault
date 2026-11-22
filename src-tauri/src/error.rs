@@ -3,82 +3,82 @@ use thiserror::Error;
 
 #[derive(Error, Debug, Clone)]
 pub enum AppError {
-    #[error("Vault henüz oluşturulmamış.")]
+    #[error("Vault has not been initialized yet.")]
     VaultNotInitialized,
 
-    #[error("Vault kilitli. Lütfen önce ana parolanız ile kilidi açın.")]
+    #[error("Vault is locked. Unlock it with your master password first.")]
     VaultLocked,
 
-    #[error("Geçersiz ana parola.")]
+    #[error("Invalid master password.")]
     InvalidMasterPassword,
 
-    #[error("Vault depolama dosyası bozulmuş veya geçersiz.")]
+    #[error("Vault storage file is corrupted or invalid.")]
     VaultCorrupted,
 
-    #[error("Proje bulunamadı.")]
+    #[error("Project not found.")]
     ProjectNotFound,
 
-    #[error("Ortam dosyası bulunamadı.")]
+    #[error("Environment file not found.")]
     EnvDocumentNotFound,
 
-    #[error("Geçersiz ortam dosyası.")]
+    #[error("Invalid environment file.")]
     InvalidEnvFile,
 
-    #[error("Dosya boyutu çok büyük (Maksimum 10 MB).")]
+    #[error("File is too large (maximum 10 MB).")]
     FileTooLarge,
 
-    #[error("Desteklenmeyen dosya kodlaması (Encoding).")]
+    #[error("Unsupported file encoding.")]
     UnsupportedEncoding,
 
-    #[error("İçe aktarılacak dosya okunamadı.")]
+    #[error("The file to import could not be read.")]
     ImportReadFailed,
 
-    #[error("Şifreli veri yazılamadı.")]
+    #[error("Encrypted data could not be written.")]
     SecretWriteFailed,
 
-    #[error("Şifreli veri okunamadı.")]
+    #[error("Encrypted data could not be read.")]
     SecretReadFailed,
 
-    #[error("Dışa aktarma hedef dizini geçersiz veya erişilemez.")]
+    #[error("Export destination folder is invalid or unreachable.")]
     ExportPathInvalid,
 
-    #[error("Dışa aktarma işlemi başarısız oldu.")]
+    #[error("Export failed.")]
     ExportWriteFailed,
 
-    #[error("Hedef konumda aynı isimde dosya zaten mevcut.")]
+    #[error("A file with the same name already exists at the destination.")]
     ExportTargetExists,
 
-    #[error("Bu isimde bir ortam dosyası zaten mevcut.")]
+    #[error("An environment file with this name already exists.")]
     DuplicateFileName,
 
-    #[error("Sürükle-bırak işlemi başarısız oldu.")]
+    #[error("Drag and drop failed.")]
     DragDropFailed,
 
-    #[error("Yedek oluşturma işlemi başarısız oldu.")]
+    #[error("Backup creation failed.")]
     BackupCreateFailed,
 
-    #[error("Yedek dosyası geçersiz veya bozulmuş.")]
+    #[error("Backup file is invalid or corrupted.")]
     BackupInvalid,
 
-    #[error("Yedek parolası geçersiz.")]
+    #[error("Backup password is invalid.")]
     BackupPasswordInvalid,
 
-    #[error("Yedekten geri yükleme başarısız oldu.")]
+    #[error("Restore from backup failed.")]
     RestoreFailed,
 
-    #[error("Ayarlar okunamadı.")]
+    #[error("Settings could not be read.")]
     SettingsReadFailed,
 
-    #[error("Ayarlar kaydedilemedi.")]
+    #[error("Settings could not be saved.")]
     SettingsWriteFailed,
 
-    #[error("Platform özelliği desteklenmiyor.")]
+    #[error("This platform feature is not supported.")]
     PlatformUnsupported,
 
-    #[error("Çakışma: {0}")]
+    #[error("Conflict: {0}")]
     Conflict(String),
 
-    #[error("Kriptografik hata: {0}")]
+    #[error("Cryptographic error: {0}")]
     Crypto(String),
 
     #[error("{0}")]
@@ -89,15 +89,15 @@ impl From<std::io::Error> for AppError {
     fn from(err: std::io::Error) -> Self {
         match err.kind() {
             std::io::ErrorKind::NotFound => {
-                AppError::Custom("Belirtilen dosya veya dizin bulunamadı.".into())
+                AppError::Custom("The specified file or folder was not found.".into())
             }
             std::io::ErrorKind::PermissionDenied => {
-                AppError::Custom("Dosya veya dizin erişim izni reddedildi.".into())
+                AppError::Custom("Access to the file or folder was denied.".into())
             }
             std::io::ErrorKind::AlreadyExists => {
-                AppError::Custom("Dosya veya dizin zaten mevcut.".into())
+                AppError::Custom("The file or folder already exists.".into())
             }
-            _ => AppError::Custom("Dosya sistemi işlemi sırasında bir hata oluştu.".into()),
+            _ => AppError::Custom("A filesystem error occurred.".into()),
         }
     }
 }

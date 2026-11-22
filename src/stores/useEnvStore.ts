@@ -33,7 +33,7 @@ export const useEnvStore = create<EnvStoreState>((set) => ({
       const documents = await envApi.listEnvDocuments(projectId);
       set({ documents, isLoading: false });
     } catch (err: unknown) {
-      const msg = (err as { message?: string })?.message || "Ortam dosyaları yüklenemedi.";
+      const msg = (err as { message?: string })?.message || "Environment files could not be loaded.";
       set({ error: msg, isLoading: false });
     }
   },
@@ -53,7 +53,7 @@ export const useEnvStore = create<EnvStoreState>((set) => ({
       }));
       return doc;
     } catch (err: unknown) {
-      const msg = (err as { message?: string })?.message || "Ortam dosyası oluşturulamadı.";
+      const msg = (err as { message?: string })?.message || "Environment file could not be created.";
       set({ error: msg, isLoading: false });
       throw err;
     }
@@ -69,7 +69,7 @@ export const useEnvStore = create<EnvStoreState>((set) => ({
       }));
       return updated;
     } catch (err: unknown) {
-      const msg = (err as { message?: string })?.message || "Ortam dosyası kaydedilemedi.";
+      const msg = (err as { message?: string })?.message || "Environment file could not be saved.";
       set({ error: msg, isLoading: false });
       throw err;
     }
@@ -85,7 +85,7 @@ export const useEnvStore = create<EnvStoreState>((set) => ({
       }));
       return updated;
     } catch (err: unknown) {
-      const msg = (err as { message?: string })?.message || "Ortam dosyası yeniden adlandırılamadı.";
+      const msg = (err as { message?: string })?.message || "Environment file could not be renamed.";
       set({ error: msg, isLoading: false });
       throw err;
     }
@@ -101,7 +101,7 @@ export const useEnvStore = create<EnvStoreState>((set) => ({
         isLoading: false,
       }));
     } catch (err: unknown) {
-      const msg = (err as { message?: string })?.message || "Ortam dosyası silinemedi.";
+      const msg = (err as { message?: string })?.message || "Environment file could not be deleted.";
       set({ error: msg, isLoading: false });
       throw err;
     }
@@ -119,7 +119,7 @@ export const useEnvStore = create<EnvStoreState>((set) => ({
         isLoading: false,
       }));
     } catch (err: unknown) {
-      const msg = (err as { message?: string })?.message || "Ortam dosyaları silinemedi.";
+      const msg = (err as { message?: string })?.message || "Environment files could not be deleted.";
       set({ error: msg, isLoading: false });
       throw err;
     }

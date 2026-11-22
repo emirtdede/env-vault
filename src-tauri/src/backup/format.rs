@@ -49,7 +49,7 @@ impl BackupContainer {
 
         if container.format_version > CURRENT_BACKUP_VERSION {
             return Err(AppError::Custom(
-                "Bu yedek daha yeni bir Env Vault sürümüyle oluşturulmuş.".to_string(),
+                "This backup was created by a newer Env Vault version.".to_string(),
             ));
         }
 

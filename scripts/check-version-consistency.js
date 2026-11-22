@@ -39,14 +39,14 @@ try {
   console.log(`- Cargo.toml      : ${cargoVer}`);
 
   if (tauriVer !== pkgVer || tauriVer !== cargoVer) {
-    console.error("\n❌ VERSION MISMATCH DETECTED!");
+    console.error("\n[FAIL] VERSION MISMATCH DETECTED!");
     console.error(`tauri.conf.json (${tauriVer}) must match package.json (${pkgVer}) and Cargo.toml (${cargoVer})`);
     process.exit(1);
   }
 
-  console.log("\n✅ All version declarations are 100% consistent!");
+  console.log("\n[OK] All version declarations are 100% consistent!");
   process.exit(0);
 } catch (err) {
-  console.error("❌ Version check error:", err.message);
+  console.error("[FAIL] Version check error:", err.message);
   process.exit(1);
 }

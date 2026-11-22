@@ -105,7 +105,7 @@ impl EncryptedFileRepository {
         let dest = self.vault_path();
         temp_file
             .persist(&dest)
-            .map_err(|e| AppError::Custom(format!("Vault dosyası kaydedilemedi: {e}")))?;
+            .map_err(|e| AppError::Custom(format!("Vault file could not be saved: {e}")))?;
 
         Ok(())
     }

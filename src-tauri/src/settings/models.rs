@@ -20,6 +20,7 @@ pub enum ThemeType {
     AcikKirmizi,
     AcikTuruncu,
     AcikSari,
+    Ozel,
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Default)]
@@ -43,18 +44,20 @@ pub enum CloseAction {
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Default)]
 #[serde(rename_all = "kebab-case")]
-pub enum Language {
+pub enum IconTheme {
     #[default]
-    Tr,
-    En,
+    Obsidian,
+    Porcelain,
+    Contrast,
+    Cyan,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "camelCase", default)]
 pub struct AppSettings {
     pub theme: ThemeType,
-    pub language: Language,
-    pub auto_lock_minutes: u32, // 0 = never/when closed, 1, 5, 15, 30, 60
+    pub language: String,
+    pub auto_lock_minutes: u32,
     pub auto_unlock_with_windows: bool,
     pub auto_hide_secrets: bool,
     pub clear_clipboard_seconds: u32,
@@ -63,13 +66,24 @@ pub struct AppSettings {
     pub export_collision_policy: CollisionPolicy,
     pub close_action: CloseAction,
     pub reduce_motion: bool,
+    pub custom_accent: String,
+    pub follow_system_theme: bool,
+    pub icon_theme: IconTheme,
+    pub ui_scale: u32,
+    pub start_with_windows: bool,
+    pub start_minimized: bool,
+    pub global_shortcut_enabled: bool,
+    pub notifications_enabled: bool,
+    pub notification_sound: bool,
+    pub auto_sync_enabled: bool,
+    pub onboarding_completed: bool,
 }
 
 impl Default for AppSettings {
     fn default() -> Self {
         Self {
             theme: ThemeType::Siyah,
-            language: Language::Tr,
+            language: "en".to_string(),
             auto_lock_minutes: 15,
             auto_unlock_with_windows: false,
             auto_hide_secrets: true,
@@ -79,6 +93,17 @@ impl Default for AppSettings {
             export_collision_policy: CollisionPolicy::Ask,
             close_action: CloseAction::Ask,
             reduce_motion: false,
+            custom_accent: "#0A84FF".to_string(),
+            follow_system_theme: false,
+            icon_theme: IconTheme::Obsidian,
+            ui_scale: 100,
+            start_with_windows: false,
+            start_minimized: false,
+            global_shortcut_enabled: true,
+            notifications_enabled: true,
+            notification_sound: true,
+            auto_sync_enabled: true,
+            onboarding_completed: false,
         }
     }
 }
