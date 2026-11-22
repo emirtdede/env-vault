@@ -6,8 +6,7 @@ export type VaultState =
   | "locking"
   | "error";
 
-export type ThemeType =
-  // Koyu Temalar (Dark Themes)
+export type BuiltInTheme =
   | "siyah"
   | "koyu-gri"
   | "koyu-mavi"
@@ -16,7 +15,6 @@ export type ThemeType =
   | "koyu-kirmizi"
   | "koyu-turuncu"
   | "koyu-sari"
-  // Açık Temalar (Light Themes)
   | "beyaz"
   | "acik-gri"
   | "acik-mavi"
@@ -24,15 +22,21 @@ export type ThemeType =
   | "acik-yesil"
   | "acik-kirmizi"
   | "acik-turuncu"
-  | "acik-sari";
+  | "acik-sari"
+  | "ozel";
 
-export type AutoLockDuration = 1 | 5 | 15 | 30 | 60 | 0; // 0 = When app closes
+export type ThemeType = BuiltInTheme;
+
+export type AutoLockDuration = 1 | 5 | 15 | 30 | 60 | 0;
 
 export type CollisionPolicy = "ask" | "overwrite" | "rename" | "cancel";
 
 export type CloseAction = "ask" | "minimize-to-tray" | "close-app";
 
-export type Language = "tr" | "en";
+export type AppIconTheme = "obsidian" | "porcelain" | "contrast" | "cyan";
+
+/** Language code from the 73-language catalog in `src/i18n/languages.json`. */
+export type Language = string;
 
 export interface Project {
   id: string;
@@ -79,6 +83,24 @@ export interface AppSettings {
   exportCollisionPolicy: CollisionPolicy;
   closeAction: CloseAction;
   reduceMotion: boolean;
+  customAccent: string;
+  followSystemTheme: boolean;
+  iconTheme: AppIconTheme;
+  uiScale: number;
+  startWithWindows: boolean;
+  startMinimized: boolean;
+  globalShortcutEnabled: boolean;
+  notificationsEnabled: boolean;
+  notificationSound: boolean;
+  autoSyncEnabled: boolean;
+  onboardingCompleted: boolean;
+  devBridgeEnabled: boolean;
+  sidebarCollapsed: boolean;
+  aiEnabled: boolean;
+  aiModel: string;
+  webhookEnabled: boolean;
+  webhookUrl: string;
+  webhookToken: string;
 }
 
 export interface ImportResult {
@@ -120,4 +142,51 @@ export interface AppErrorResponse {
   code: string;
   message: string;
   details?: string;
+}
+
+export interface CloudProviderInfo {
+  id: string;
+  path: string;
+  available: boolean;
+  isDefault: boolean;
+}
+
+export interface CloudSnapshotSummary {
+  projects: number;
+  documents: number;
+}
+
+export interface CloudStatus {
+  provider: string;
+  folder: string | null;
+  cloudDir: string | null;
+  connected: boolean;
+  autoSync: boolean;
+  lastSync: string | null;
+  backupFiles: number;
+  summary: CloudSnapshotSummary | null;
+  providerAvailable: boolean;
+}
+
+export interface CloudRestoreProposal {
+  found: boolean;
+  cloudDir: string;
+  exportedAt: string | null;
+  summary: CloudSnapshotSummary | null;
+}
+
+export interface CloudSyncOutcome {
+  written: boolean;
+  skippedEmpty: boolean;
+  exportedAt: string;
+  backupFiles: number;
+  summary: CloudSnapshotSummary;
+}
+
+export interface SystemInfo {
+  appVersion: string;
+  os: string;
+  arch: string;
+  locale: string;
+  vaultState: string;
 }

@@ -5,53 +5,46 @@ import { useVaultSessionStore } from "../../stores/useVaultSessionStore";
 
 describe("VaultSetup", () => {
   beforeEach(() => {
-    useVaultSessionStore.setState({ state: "uninitialized", isLoading: false, error: null });
+    useVaultSessionStore.setState({
+      state: "uninitialized",
+      isLoading: false,
+      error: null,
+    });
   });
 
-  it("renders welcome screen with Turkish overview and features", () => {
+  it("renders the master password creation form", () => {
     render(<VaultSetup />);
-
-    expect(screen.getByText("Env Vault'a Hoş Geldiniz")).toBeInTheDocument();
-    expect(screen.getByText("Sıfır Sızıntı & İzolasyon")).toBeInTheDocument();
-    expect(screen.getByText("Argon2id + AES-256-GCM")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Kasayı Kurun ve Başlayın/i })).toBeInTheDocument();
-  });
-
-  it("navigates to password creation and validates password length", () => {
-    render(<VaultSetup />);
-
-    // Proceed to Step 2
-    fireEvent.click(screen.getByRole("button", { name: /Kasayı Kurun ve Başlayın/i }));
-
-    const passwordInput = screen.getByLabelText("Ana Parola");
-    const confirmInput = screen.getByLabelText("Ana Parolayı Tekrarla");
-    const submitBtn = screen.getByRole("button", { name: /Vault Oluştur ve Kilidi Aç/i });
-
-    fireEvent.change(passwordInput, { target: { value: "123" } });
-    fireEvent.change(confirmInput, { target: { value: "123" } });
-    fireEvent.click(submitBtn);
-
+    expect(screen.getByText("1. Set Master Password")).toBeInTheDocument();
+    expect(screen.getByLabelText("Master Password")).toBeInTheDocument();
+    expect(screen.getByLabelText("Confirm Master Password")).toBeInTheDocument();
     expect(
-      screen.getByText("Ana parola en az 8 karakter olmalıdır.")
+      screen.getByRole("button", { name: /Create Vault/i })
     ).toBeInTheDocument();
   });
 
-  it("navigates to password creation and validates password match", () => {
+  it("rejects a short master password", () => {
     render(<VaultSetup />);
-
-    // Proceed to Step 2
-    fireEvent.click(screen.getByRole("button", { name: /Kasayı Kurun ve Başlayın/i }));
-
-    const passwordInput = screen.getByLabelText("Ana Parola");
-    const confirmInput = screen.getByLabelText("Ana Parolayı Tekrarla");
-    const submitBtn = screen.getByRole("button", { name: /Vault Oluştur ve Kilidi Aç/i });
-
-    fireEvent.change(passwordInput, { target: { value: "password123!" } });
-    fireEvent.change(confirmInput, { target: { value: "different123!" } });
-    fireEvent.click(submitBtn);
-
+    fireEvent.change(screen.getByLabelText("Master Password"), {
+      target: { value: "123" },
+    });
+    fireEvent.change(screen.getByLabelText("Confirm Master Password"), {
+      target: { value: "123" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /Create Vault/i }));
     expect(
-      screen.getByText("Girdiğiniz parolalar birbiriyle eşleşmiyor.")
+      screen.getByText("Master password must be at least 8 characters long.")
     ).toBeInTheDocument();
+  });
+
+  it("rejects mismatched passwords", () => {
+    render(<VaultSetup />);
+    fireEvent.change(screen.getByLabelText("Master Password"), {
+      target: { value: "password123!" },
+    });
+    fireEvent.change(screen.getByLabelText("Confirm Master Password"), {
+      target: { value: "different123!" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /Create Vault/i }));
+    expect(screen.getByText(/do not match/i)).toBeInTheDocument();
   });
 });

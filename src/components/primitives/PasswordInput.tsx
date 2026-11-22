@@ -22,7 +22,7 @@ export const PasswordInput = React.forwardRef<HTMLInputElement, PasswordInputPro
               type="button"
               size="sm"
               variant="ghost"
-              aria-label={isVisible ? "Parolayı Gizle" : "Parolayı Göster"}
+              aria-label={isVisible ? "Hide password" : "Show password"}
               icon={isVisible ? <EyeOff size={15} /> : <Eye size={15} />}
               onClick={() => setIsVisible(!isVisible)}
               tabIndex={-1}

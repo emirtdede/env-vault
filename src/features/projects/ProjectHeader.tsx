@@ -70,11 +70,12 @@ export const ProjectHeader: React.FC<ProjectHeaderProps> = ({ onEditProject }) =
 
   return (
     <header
+      className="vault-header"
       style={{
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
-        padding: "var(--space-4) var(--space-6)",
+        padding: `calc(var(--chrome-height) + 6px) var(--space-6) var(--space-4)`,
         borderBottom: "1px solid var(--border)",
         backgroundColor: "var(--surface)",
         gap: "var(--space-4)",

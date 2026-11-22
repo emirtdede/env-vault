@@ -49,7 +49,7 @@ export const useEditorStore = create<EditorStoreState>((set, get) => ({
         isDirty: false,
       });
     } catch (err: unknown) {
-      const msg = (err as { message?: string })?.message || "Ortam dosyası okunamadı.";
+      const msg = (err as { message?: string })?.message || "Environment file could not be read.";
       set({ error: msg, isLoading: false });
     }
   },
@@ -93,7 +93,7 @@ export const useEditorStore = create<EditorStoreState>((set, get) => ({
         isSaving: false,
       });
     } catch (err: unknown) {
-      const msg = (err as { message?: string })?.message || "Değişiklikler kaydedilemedi.";
+      const msg = (err as { message?: string })?.message || "Changes could not be saved.";
       set({ error: msg, isSaving: false });
       throw err;
     }

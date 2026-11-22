@@ -291,8 +291,8 @@ export const EnvDiffModal: React.FC = () => {
                     }}
                   >
                     <th style={{ padding: "8px 12px", width: "30%" }}>{language === "tr" ? "Değişken Adı" : "Variable Key"}</th>
-                    <th style={{ padding: "8px 12px", width: "35%" }}>{leftDoc?.filename || "Dosya 1"}</th>
-                    <th style={{ padding: "8px 12px", width: "35%" }}>{rightDoc?.filename || "Dosya 2"}</th>
+                    <th style={{ padding: "8px 12px", width: "35%" }}>{leftDoc?.filename || (language === "tr" ? "Dosya 1" : "File 1")}</th>
+                    <th style={{ padding: "8px 12px", width: "35%" }}>{rightDoc?.filename || (language === "tr" ? "Dosya 2" : "File 2")}</th>
                   </tr>
                 </thead>
                 <tbody>

@@ -2,7 +2,7 @@
   "name": "env-vault",
   "private": true,
   "version": "1.0.0",
-  "description": ".env dosyalarınızı proje klasörlerinden bağımsız olarak şifreli biçimde saklayın, düzenleyin ve istediğiniz zaman dışa aktarın.",
+  "description": "Store, edit and export your .env files in an encrypted vault, independent of project folders.",
   "author": {
     "name": "Vellium",
     "url": "https://vellium.dev"
@@ -17,6 +17,10 @@
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
     "check:version": "node scripts/check-version-consistency.js",
+    "check:i18n": "node scripts/check-i18n-keys.mjs",
+    "check:i18n:usage": "node scripts/check-i18n-usage.mjs",
+    "check:typography": "node scripts/check-typography.mjs",
+    "verify": "npm run check:version && npm run check:i18n && npm run check:i18n:usage && npm run check:typography && npm run typecheck && npm test",
     "tauri": "tauri",
     "build:app": "npm run build && npx @tauri-apps/cli build",
     "build:portable": "npm run build && npx @tauri-apps/cli build --no-bundle"
@@ -27,8 +31,8 @@
     "@codemirror/search": "^6.5.8",
     "@codemirror/state": "^6.5.2",
     "@codemirror/view": "^6.36.4",
-    "@tauri-apps/api": "^2.2.0",
-    "@tauri-apps/plugin-dialog": "^2.2.0",
+    "@tauri-apps/api": "^2.12.5",
+    "@tauri-apps/plugin-dialog": "^2.8.4",
     "codemirror": "^6.0.1",
     "lucide-react": "^1.16.0",
     "react": "^19.0.0",
@@ -36,6 +40,7 @@
     "zustand": "^5.0.3"
   },
   "devDependencies": {
+    "@tauri-apps/cli": "^2.12.6",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.2.0",
     "@types/node": "^22.13.5",

@@ -1,4 +1,0 @@
-55b244d02f73ac6ff50f36809d0c975b73da0556db422ca43c7ae9b7a99cbc79  Env-Vault-1.0.0-Windows-x64-Portable.exe
-92a9a0acac6ea5f3b5aa454bb474c8895da1c7a54091a30f3d121859b6068f8f  Env-Vault-1.0.0-Windows-x64-Portable.zip
-d1a98fcb6653b633192b0f353bc75bf4b91a5cbfb7f5695265d9b8793cfcfec4  Env-Vault-1.0.0-Windows-x64-Setup.exe
-0c7bd206a5ae30c8bc510a0beb40ecbc336586723d62844ff40b0ee883de5826  Env-Vault-1.0.0-Windows-x64.msi

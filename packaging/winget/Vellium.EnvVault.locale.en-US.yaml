@@ -1,0 +1,29 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.defaultLocale.1.10.0.schema.json
+PackageIdentifier: Vellium.EnvVault
+PackageVersion: 1.0.0
+PackageLocale: en-US
+Publisher: Vellium
+PublisherUrl: https://vellium.dev
+PublisherSupportUrl: https://github.com/emirtdede/env-vault/issues
+Author: Vellium
+PackageName: Env Vault
+PackageUrl: https://github.com/emirtdede/env-vault
+License: MIT
+LicenseUrl: https://github.com/emirtdede/env-vault/blob/main/LICENSE
+Copyright: Copyright 2026 Vellium. All rights reserved.
+ShortDescription: Encrypted, local-first .env and secret manager for Windows.
+Description: Env Vault stores, edits and exports .env files in a local encrypted vault independent of project folders. It uses Argon2id and AES-256-GCM, ships a 73-language interface, four icon packs, optional serverless cloud sync and native Windows tray, hotkey and jump list integration. The core works fully offline with no account, telemetry or remote API.
+Moniker: envvault
+Tags:
+- env
+- dotenv
+- secrets
+- secrets-management
+- password-manager
+- encryption
+- developer-tools
+- security
+- tauri
+ReleaseNotesUrl: https://github.com/emirtdede/env-vault/releases/tag/1.0.0
+ManifestType: defaultLocale
+ManifestVersion: 1.10.0

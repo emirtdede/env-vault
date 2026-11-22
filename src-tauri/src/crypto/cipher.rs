@@ -9,7 +9,7 @@ use aes_gcm::{
 /// Returns: Nonce (12 bytes) prepended to the ciphertext and auth tag (16 bytes).
 pub fn encrypt_aes_gcm(key: &[u8; 32], plaintext: &[u8]) -> AppResult<Vec<u8>> {
     let cipher = Aes256Gcm::new_from_slice(key)
-        .map_err(|e| AppError::Custom(format!("Cipher başlatılamadı: {}", e)))?;
+        .map_err(|e| AppError::Custom(format!("Cipher initialization failed: {}", e)))?;
 
     let nonce_bytes = generate_nonce();
     let nonce = Nonce::from_slice(&nonce_bytes);
@@ -36,7 +36,7 @@ pub fn decrypt_aes_gcm(key: &[u8; 32], payload: &[u8]) -> AppResult<Vec<u8>> {
     let nonce = Nonce::from_slice(nonce_bytes);
 
     let cipher = Aes256Gcm::new_from_slice(key)
-        .map_err(|e| AppError::Custom(format!("Cipher başlatılamadı: {}", e)))?;
+        .map_err(|e| AppError::Custom(format!("Cipher initialization failed: {}", e)))?;
 
     cipher
         .decrypt(nonce, ciphertext)

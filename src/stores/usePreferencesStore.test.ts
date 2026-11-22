@@ -11,21 +11,21 @@ describe("usePreferencesStore", () => {
   });
 
   it("updates theme correctly", () => {
-    usePreferencesStore.getState().setTheme("koyu-mavi");
+    usePreferencesStore.getState().updateSettings({ theme: "koyu-mavi" });
     expect(usePreferencesStore.getState().theme).toBe("koyu-mavi");
 
-    usePreferencesStore.getState().setTheme("acik-yesil");
+    usePreferencesStore.getState().updateSettings({ theme: "acik-yesil" });
     expect(usePreferencesStore.getState().theme).toBe("acik-yesil");
 
-    usePreferencesStore.getState().setTheme("siyah");
+    usePreferencesStore.getState().updateSettings({ theme: "siyah" });
     expect(usePreferencesStore.getState().theme).toBe("siyah");
   });
 
   it("updates auto lock duration and options", () => {
-    usePreferencesStore.getState().setAutoLockMinutes(30);
+    usePreferencesStore.getState().updateSettings({ autoLockMinutes: 30 });
     expect(usePreferencesStore.getState().autoLockMinutes).toBe(30);
 
-    usePreferencesStore.getState().setAutoLockMinutes(0);
+    usePreferencesStore.getState().updateSettings({ autoLockMinutes: 0 });
     expect(usePreferencesStore.getState().autoLockMinutes).toBe(0);
   });
 });

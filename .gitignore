@@ -16,6 +16,7 @@ yarn-error.log*
 
 # Distributions
 portable/
+dist-release/
 release/*.exe
 release/*.msi
 release/*.zip

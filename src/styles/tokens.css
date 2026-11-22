@@ -59,6 +59,15 @@
   --duration-normal: 180ms;
   --duration-modal: 220ms;
   --ease-smooth: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Layout */
+  /* The window is frameless, so the custom title bar is the only handle for
+     dragging and the only place where window controls live. Every full-screen
+     layer starts below it and never covers it. */
+  --titlebar-height: 38px;
+  /* Height of the invisible window chrome strip that replaces the title bar. */
+  --chrome-height: 34px;
+  --duration-slow: 240ms;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -66,5 +75,6 @@
     --duration-fast: 0ms;
     --duration-normal: 0ms;
     --duration-modal: 0ms;
+    --duration-slow: 0ms;
   }
 }

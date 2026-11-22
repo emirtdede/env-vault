@@ -23,7 +23,7 @@ pub fn exit_application(app: AppHandle) {
 #[tauri::command]
 pub fn open_external_url(url: String) -> AppResult<()> {
     if !url.starts_with("http://") && !url.starts_with("https://") {
-        return Err(AppError::Custom("Geçersiz veya desteklenmeyen URL protokolü".to_string()));
+        return Err(AppError::Custom("Invalid or unsupported URL protocol".to_string()));
     }
 
     #[cfg(windows)]
@@ -45,7 +45,7 @@ pub fn open_external_url(url: String) -> AppResult<()> {
                 SHOW_WINDOW_CMD(1), // SW_SHOWNORMAL
             );
             if (res.0 as isize) <= 32 {
-                return Err(AppError::Custom("Sistem web tarayıcısı başlatılamadı".to_string()));
+                return Err(AppError::Custom("The system browser could not be launched".to_string()));
             }
         }
     }

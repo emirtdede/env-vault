@@ -29,7 +29,7 @@ export const useVaultSessionStore = create<VaultSessionStoreState>((set) => ({
       set({ state, isLoading: false });
       return state;
     } catch (err: unknown) {
-      const msg = (err as { message?: string })?.message || "Vault durumu alınamadı.";
+      const msg = (err as { message?: string })?.message || "Vault state could not be read.";
       set({ state: "error", error: msg, isLoading: false });
       return "error";
     }
@@ -41,7 +41,7 @@ export const useVaultSessionStore = create<VaultSessionStoreState>((set) => ({
       await vaultApi.initializeVault(password);
       set({ state: "unlocked", isLoading: false });
     } catch (err: unknown) {
-      const msg = (err as { message?: string })?.message || "Vault oluşturulamadı.";
+      const msg = (err as { message?: string })?.message || "Vault could not be created.";
       set({ error: msg, isLoading: false });
       throw err;
     }
@@ -53,7 +53,7 @@ export const useVaultSessionStore = create<VaultSessionStoreState>((set) => ({
       await vaultApi.unlockVault(password);
       set({ state: "unlocked", isLoading: false });
     } catch (err: unknown) {
-      const msg = (err as { message?: string })?.message || "Geçersiz ana parola.";
+      const msg = (err as { message?: string })?.message || "Invalid master password.";
       set({ error: msg, isLoading: false });
       throw err;
     }
@@ -78,7 +78,7 @@ export const useVaultSessionStore = create<VaultSessionStoreState>((set) => ({
       await vaultApi.changeMasterPassword(currentPass, newPass);
       set({ isLoading: false });
     } catch (err: unknown) {
-      const msg = (err as { message?: string })?.message || "Parola değiştirilemedi.";
+      const msg = (err as { message?: string })?.message || "Password could not be changed.";
       set({ error: msg, isLoading: false });
       throw err;
     }
@@ -92,7 +92,7 @@ export const useVaultSessionStore = create<VaultSessionStoreState>((set) => ({
       useEnvStore.getState().clearDocuments();
       set({ state: "uninitialized", isLoading: false });
     } catch (err: unknown) {
-      const msg = (err as { message?: string })?.message || "Kasa sıfırlanamadı.";
+      const msg = (err as { message?: string })?.message || "Vault could not be reset.";
       set({ error: msg, isLoading: false });
       throw err;
     }

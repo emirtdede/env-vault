@@ -40,12 +40,12 @@ impl VaultService {
     pub fn initialize_vault(&self, password: &str) -> AppResult<()> {
         if password.trim().len() < 8 {
             return Err(AppError::Custom(
-                "Ana parola en az 8 karakter olmalıdır.".to_string(),
+                "The master password must be at least 8 characters.".to_string(),
             ));
         }
 
         if self.repo.is_initialized() {
-            return Err(AppError::Custom("Vault zaten oluşturulmuş.".to_string()));
+            return Err(AppError::Custom("Vault is already initialized.".to_string()));
         }
 
         let salt = crate::crypto::generate_salt();
@@ -87,7 +87,7 @@ impl VaultService {
     ) -> AppResult<()> {
         if new_password.trim().len() < 8 {
             return Err(AppError::Custom(
-                "Yeni ana parola en az 8 karakter olmalıdır.".to_string(),
+                "The new master password must be at least 8 characters.".to_string(),
             ));
         }
 
@@ -125,7 +125,7 @@ impl VaultService {
     ) -> AppResult<Project> {
         let trimmed_name = name.trim();
         if trimmed_name.is_empty() {
-            return Err(AppError::Custom("Proje adı boş bırakılamaz.".to_string()));
+            return Err(AppError::Custom("Project name cannot be empty.".to_string()));
         }
 
         let master_key = self.session.lock().get_master_key()?;
@@ -163,7 +163,7 @@ impl VaultService {
     ) -> AppResult<Project> {
         let trimmed_name = name.trim();
         if trimmed_name.is_empty() {
-            return Err(AppError::Custom("Proje adı boş bırakılamaz.".to_string()));
+            return Err(AppError::Custom("Project name cannot be empty.".to_string()));
         }
 
         let master_key = self.session.lock().get_master_key()?;
@@ -306,7 +306,7 @@ impl VaultService {
             .any(|d| d.project_id == project_id && d.filename.eq_ignore_ascii_case(filename))
         {
             return Err(AppError::Custom(
-                "Aynı projede bu isimde bir ortam dosyası zaten mevcut.".to_string(),
+                "An environment file with this name already exists in this project.".to_string(),
             ));
         }
 
@@ -435,7 +435,7 @@ impl VaultService {
                 && d.filename.eq_ignore_ascii_case(new_filename)
         }) {
             return Err(AppError::Custom(
-                "Aynı projede bu isimde bir ortam dosyası zaten mevcut.".to_string(),
+                "An environment file with this name already exists in this project.".to_string(),
             ));
         }
 
@@ -507,6 +507,14 @@ impl VaultService {
     pub fn replace_snapshot(&self, snapshot: &VaultSnapshot) -> AppResult<()> {
         let master_key = self.session.lock().get_master_key()?;
         self.repo.save_snapshot(&master_key, snapshot)
+    }
+
+    /// Lightweight project/document counters for cloud status and empty-data
+    /// guards. Fails with `VaultLocked` when the vault is not unlocked.
+    pub fn snapshot_summary(&self) -> AppResult<(usize, usize)> {
+        let master_key = self.session.lock().get_master_key()?;
+        let snapshot = self.repo.load_snapshot(&master_key)?;
+        Ok((snapshot.projects.len(), snapshot.env_documents.len()))
     }
 }
 

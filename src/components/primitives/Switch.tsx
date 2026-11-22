@@ -6,6 +6,7 @@ export interface SwitchProps {
   label?: string;
   description?: string;
   disabled?: boolean;
+  ariaLabel?: string;
 }
 
 export const Switch: React.FC<SwitchProps> = ({
@@ -14,6 +15,7 @@ export const Switch: React.FC<SwitchProps> = ({
   label,
   description,
   disabled = false,
+  ariaLabel,
 }) => {
   return (
     <label
@@ -44,6 +46,7 @@ export const Switch: React.FC<SwitchProps> = ({
         type="button"
         role="switch"
         aria-checked={checked}
+        aria-label={ariaLabel ?? label}
         disabled={disabled}
         onClick={() => onChange(!checked)}
         style={{
