@@ -375,6 +375,10 @@ real four-step flow.
 - The winget manifests for `Vellium.EnvVault` live in `packaging/winget` and pass
   `winget validate`. Submission to `microsoft/winget-pkgs` is a manual PR step
   after the release asset is published.
+- The published `1.0.0` asset still matches the tag. When the `development` to
+  `main` pull request is approved and merged, rebuild the installer from `main`,
+  replace the release asset, and refresh `InstallerSha256` in the winget
+  manifest before submitting to `microsoft/winget-pkgs`.
 
 ### 7.1 Reproducible verification scripts
 
