@@ -1,4 +1,6 @@
+pub mod ai;
 pub mod backup;
+pub mod bridge;
 pub mod cloud;
 pub mod commands;
 pub mod crypto;
@@ -15,6 +17,7 @@ use std::path::PathBuf;
 use std::sync::Arc;
 
 use crate::backup::service::BackupService;
+use crate::bridge::BridgeState;
 use crate::cloud::sync::CloudService;
 use crate::commands::*;
 use crate::export::service::ExportService;
@@ -72,6 +75,9 @@ pub fn run() {
         vault_service.clone(),
         settings_service.clone(),
     ));
+    let bridge_state = Arc::new(BridgeState::new(app_data_dir.clone()));
+    let bridge_for_setup = bridge_state.clone();
+    let vault_for_bridge = vault_service.clone();
 
     // Synchronize auto lock duration from stored settings
     let initial_settings = settings_service.get_settings();
@@ -107,6 +113,7 @@ pub fn run() {
         .manage(backup_service)
         .manage(settings_service)
         .manage(cloud_service)
+        .manage(bridge_state)
         .setup(move |app| {
             let show_i = MenuItem::with_id(app, "show", "Show Env Vault", true, None::<&str>)?;
             let settings_i = MenuItem::with_id(app, "settings", "Settings", true, None::<&str>)?;
@@ -239,6 +246,12 @@ pub fn run() {
             let startup_args: Vec<String> = std::env::args().collect();
             dispatch_launch_args(app.handle(), &startup_args);
 
+            // The CLI is embedded so the on-disk copy always matches this build.
+            let _ = crate::bridge::cli::materialize(&app_data);
+            if initial_settings.dev_bridge_enabled {
+                let _ = bridge_for_setup.start(vault_for_bridge.clone());
+            }
+
             Ok(())
         })
         .on_window_event(|window, event| {
@@ -324,6 +337,18 @@ pub fn run() {
             cloud_restore,
             cloud_detect_restore,
             cloud_open_folder,
+            // Developer Commands
+            dev_bridge_info,
+            dev_bridge_start,
+            dev_bridge_stop,
+            open_terminal,
+            dev_open_data_folder,
+            // Local AI + webhooks
+            ai_status,
+            ai_generate,
+            ai_pull,
+            ai_delete,
+            webhook_send,
         ])
         .build(tauri::generate_context!())
         .expect("Env Vault failed to start")
@@ -331,6 +356,8 @@ pub fn run() {
             if let RunEvent::ExitRequested { .. } | RunEvent::Exit = event {
                 let cloud = app.state::<Arc<CloudService>>();
                 let _ = cloud.sync_now();
+                let bridge = app.state::<Arc<BridgeState>>();
+                bridge.stop();
             }
         });
 }

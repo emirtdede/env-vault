@@ -31,6 +31,9 @@ jobs:
       - name: Locale parity (73 languages)
         run: npm run check:i18n
 
+      - name: Locale key usage
+        run: npm run check:i18n:usage
+
       - name: Typography (no long dashes, no emoji)
         run: npm run check:typography
 

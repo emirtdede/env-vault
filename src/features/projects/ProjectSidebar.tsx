@@ -1,12 +1,11 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
-  Folder,
-
-  FolderPlus,
-  Star,
   FilePlus,
+  Folder,
   FolderDown,
+  FolderPlus,
   Pencil,
+  Star,
   Trash2,
 } from "lucide-react";
 import { useProjectStore } from "../../stores/useProjectStore";
@@ -18,7 +17,16 @@ import { Project } from "../../types";
 import { useTranslation } from "../../i18n";
 import { useProjectExportActions } from "../../hooks/useProjectExportActions";
 
-export const ProjectSidebar: React.FC = () => {
+interface ProjectListProps {
+  collapsed?: boolean;
+}
+
+/**
+ * The project half of the sidebar: search, favourites first, and the project
+ * context menu. It only renders content - the surrounding <aside> belongs to
+ * AppSidebar.
+ */
+export const ProjectList: React.FC<ProjectListProps> = ({ collapsed = false }) => {
   const { t, language } = useTranslation();
   const projects = useProjectStore((s) => s.projects);
   const selectedProjectId = useProjectStore((s) => s.selectedProjectId);
@@ -40,31 +48,22 @@ export const ProjectSidebar: React.FC = () => {
     y: number;
     project: Project;
   } | null>(null);
+  const [navContextMenu, setNavContextMenu] = useState<{ x: number; y: number } | null>(null);
 
-  const [navContextMenu, setNavContextMenu] = useState<{
-    x: number;
-    y: number;
-  } | null>(null);
-
-  // Sort favorites first, then sortOrder, then alphabetically with useMemo
-  const sortedProjects = React.useMemo(() => {
+  const sortedProjects = useMemo(() => {
     const query = searchQuery.toLowerCase().trim();
     const filtered = query
-      ? projects.filter((p) => p.name.toLowerCase().includes(query))
+      ? projects.filter((project) => project.name.toLowerCase().includes(query))
       : projects;
 
     return [...filtered].sort((a, b) => {
-      if (a.favorite !== b.favorite) {
-        return a.favorite ? -1 : 1;
-      }
+      if (a.favorite !== b.favorite) return a.favorite ? -1 : 1;
       if (a.sortOrder != null && b.sortOrder != null && a.sortOrder !== b.sortOrder) {
         return a.sortOrder - b.sortOrder;
       }
       return a.name.localeCompare(b.name, language);
     });
   }, [projects, searchQuery, language]);
-
-
 
   const getProjectMenuItems = (project: Project): ContextMenuItem[] => [
     {
@@ -80,25 +79,19 @@ export const ProjectSidebar: React.FC = () => {
       id: "edit-project",
       label: t("project.editProject"),
       icon: <Pencil size={14} />,
-      onClick: () => {
-        openEditProject(project);
-      },
+      onClick: () => openEditProject(project),
     },
     {
       id: "export-all-env",
-      label: language === "tr" ? "Tüm Dosyaları Klasöre Aktar..." : "Export All Files to Folder...",
+      label: t("project.exportAllEnv"),
       icon: <FolderDown size={14} />,
-      onClick: () => {
-        exportProjectToFolder(project.id, project.name);
-      },
+      onClick: () => exportProjectToFolder(project.id, project.name),
     },
     {
       id: "export-merged-env",
-      label: language === "tr" ? "Birleşik Tek Dosya Olarak Aktar (.env)..." : "Export as Combined Single File (.env)...",
+      label: t("project.exportMerged"),
       icon: <FolderDown size={14} />,
-      onClick: () => {
-        exportMergedProject(project.id, project.name);
-      },
+      onClick: () => exportMergedProject(project.id, project.name),
     },
     {
       id: "toggle-fav",
@@ -127,71 +120,54 @@ export const ProjectSidebar: React.FC = () => {
     },
   ];
 
+  if (collapsed) {
+    return (
+      <div className="sidebar-projects is-collapsed">
+        {sortedProjects.map((project) => {
+          const isSelected = project.id === selectedProjectId;
+          return (
+            <button
+              key={project.id}
+              type="button"
+              className={`rail-project${isSelected ? " is-active" : ""}`}
+              onClick={() => selectProject(project.id)}
+              title={project.name}
+              aria-label={project.name}
+              aria-current={isSelected ? "page" : undefined}
+            >
+              {project.favorite ? <Star size={16} aria-hidden /> : <Folder size={16} aria-hidden />}
+            </button>
+          );
+        })}
+        <button
+          type="button"
+          className="rail-project"
+          onClick={openCreateProject}
+          title={t("sidebar.newProject")}
+          aria-label={t("sidebar.newProject")}
+        >
+          <FolderPlus size={16} aria-hidden />
+        </button>
+      </div>
+    );
+  }
 
   return (
-    <aside
-      style={{
-        width: "260px",
-        height: "100%",
-        display: "flex",
-        flexDirection: "column",
-        borderRight: "1px solid var(--border)",
-        backgroundColor: "var(--glass-bg, var(--surface))",
-        backdropFilter: "blur(var(--glass-blur-sm))",
-        WebkitBackdropFilter: "blur(var(--glass-blur-sm))",
-        flexShrink: 0,
-      }}
-    >
-      {/* Sidebar Header */}
-      <div
-        style={{
-          padding: "var(--space-4) var(--space-4) var(--space-2) var(--space-4)",
-          display: "flex",
-          flexDirection: "column",
-          gap: "var(--space-3)",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
-            <span
-              style={{
-                fontSize: "14px",
-                fontWeight: 700,
-                letterSpacing: "-0.01em",
-                color: "var(--text-primary)",
-              }}
-            >
-              {t("common.projects")}
-            </span>
-            <span
-              style={{
-                fontSize: "11px",
-                fontWeight: 500,
-                color: "var(--text-tertiary)",
-                backgroundColor: "var(--surface-subtle)",
-                padding: "1px 6px",
-                borderRadius: "var(--radius-full)",
-              }}
-            >
-              {projects.length}
-            </span>
-          </div>
-          <IconButton
-            icon={<FolderPlus size={16} />}
-            aria-label={t("sidebar.newProject")}
-            title={t("sidebar.newProject")}
-            size="sm"
-            variant="subtle"
-            onClick={openCreateProject}
-          />
-        </div>
+    <div className="sidebar-projects">
+      <div className="sidebar-section-head">
+        <span className="sidebar-section-title">{t("common.projects")}</span>
+        <span className="count-pill">{projects.length}</span>
+        <IconButton
+          icon={<FolderPlus size={15} />}
+          aria-label={t("sidebar.newProject")}
+          title={t("sidebar.newProject")}
+          size="sm"
+          variant="subtle"
+          onClick={openCreateProject}
+        />
+      </div>
 
+      <div className="sidebar-search">
         <SearchField
           value={searchQuery}
           onChange={setSearchQuery}
@@ -200,32 +176,18 @@ export const ProjectSidebar: React.FC = () => {
         />
       </div>
 
-      {/* Project Navigation Items */}
       <nav
-        onContextMenu={(e) => {
-          if (e.target === e.currentTarget) {
-            e.preventDefault();
-            setNavContextMenu({ x: e.clientX, y: e.clientY });
+        className="sidebar-nav"
+        aria-label={t("common.projects")}
+        onContextMenu={(event) => {
+          if (event.target === event.currentTarget) {
+            event.preventDefault();
+            setNavContextMenu({ x: event.clientX, y: event.clientY });
           }
-        }}
-        style={{
-          flex: 1,
-          overflowY: "auto",
-          padding: "var(--space-2) var(--space-2)",
-          display: "flex",
-          flexDirection: "column",
-          gap: "2px",
         }}
       >
         {sortedProjects.length === 0 ? (
-          <div
-            style={{
-              padding: "var(--space-8) var(--space-4)",
-              textAlign: "center",
-              color: "var(--text-tertiary)",
-              fontSize: "12.5px",
-            }}
-          >
+          <div className="sidebar-empty">
             {searchQuery ? t("sidebar.noProjectsFound") : t("sidebar.emptyProjectsDesc")}
           </div>
         ) : (
@@ -236,81 +198,46 @@ export const ProjectSidebar: React.FC = () => {
                 key={project.id}
                 role="button"
                 tabIndex={0}
+                className={`nav-entry project-nav-item${isSelected ? " is-active" : ""}`}
                 onClick={() => selectProject(project.id)}
-                onContextMenu={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
+                onContextMenu={(event) => {
+                  event.preventDefault();
+                  event.stopPropagation();
                   selectProject(project.id);
                   setNavContextMenu(null);
-                  setContextMenu({
-                    x: e.clientX,
-                    y: e.clientY,
-                    project,
-                  });
+                  setContextMenu({ x: event.clientX, y: event.clientY, project });
                 }}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") selectProject(project.id);
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    selectProject(project.id);
+                  }
                 }}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  padding: "7px 10px",
-                  borderRadius: "var(--radius-md)",
-                  backgroundColor: isSelected ? "var(--surface-active)" : "transparent",
-                  color: isSelected ? "var(--text-primary)" : "var(--text-secondary)",
-                  cursor: "pointer",
-                  transition: "all var(--duration-fast)",
-                  outline: "none",
-                }}
-                className="project-nav-item"
               >
-                <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", overflow: "hidden" }}>
-                  <Folder
-                    size={15}
-                    style={{
-                      color: isSelected ? "var(--accent)" : "var(--text-tertiary)",
-                      flexShrink: 0,
-                    }}
-                  />
-                  <span
-                    style={{
-                      fontSize: "13px",
-                      fontWeight: isSelected ? 600 : 400,
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    {project.name}
-                  </span>
-                </div>
-
-                <div
-                  onClick={(e) => {
-                    e.stopPropagation();
+                <Folder size={15} className="nav-entry-icon" aria-hidden />
+                <span className="nav-entry-text">{project.name}</span>
+                <button
+                  type="button"
+                  className={`favorite-btn${project.favorite ? " is-active" : ""}`}
+                  onClick={(event) => {
+                    event.stopPropagation();
                     toggleFavorite(project.id);
                   }}
-                  title={project.favorite ? t("project.removeFromFavorites") : t("project.addToFavorites")}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    padding: "2px",
-                    color: project.favorite ? "var(--warning)" : "var(--text-tertiary)",
-                    opacity: project.favorite || isSelected ? 1 : 0,
-                    transition: "opacity var(--duration-fast)",
-                  }}
-                  className="favorite-btn"
+                  title={
+                    project.favorite ? t("project.removeFromFavorites") : t("project.addToFavorites")
+                  }
+                  aria-label={
+                    project.favorite ? t("project.removeFromFavorites") : t("project.addToFavorites")
+                  }
                 >
-                  <Star size={13} fill={project.favorite ? "currentColor" : "none"} />
-                </div>
+                  <Star size={13} fill={project.favorite ? "currentColor" : "none"} aria-hidden />
+                </button>
               </div>
             );
           })
         )}
       </nav>
 
-      {/* Project Context Menu */}
       {contextMenu && (
         <ContextMenu
           x={contextMenu.x}
@@ -321,7 +248,6 @@ export const ProjectSidebar: React.FC = () => {
         />
       )}
 
-      {/* Nav Empty Space Context Menu */}
       {navContextMenu && (
         <ContextMenu
           x={navContextMenu.x}
@@ -335,7 +261,7 @@ export const ProjectSidebar: React.FC = () => {
             },
             {
               id: "export-all-vault",
-              label: language === "tr" ? "Tüm Kasayı Dışa Aktar (Tüm Projeler)..." : "Export Entire Vault (All Projects)...",
+              label: t("sidebar.exportVault"),
               icon: <FolderDown size={14} />,
               onClick: async () => {
                 try {
@@ -343,14 +269,15 @@ export const ProjectSidebar: React.FC = () => {
                   const selected = await open({
                     directory: true,
                     multiple: false,
-                    title: language === "tr" ? "Tüm Projelerin Çıkarılacağı Ana Klasörü Seçin" : "Select Root Directory to Export All Projects",
+                    title: t("sidebar.exportVault"),
                   });
                   if (selected && typeof selected === "string") {
                     const { exportApi } = await import("../../lib/tauri/export-api");
                     await exportApi.exportAllProjects(selected, "overwrite");
                   }
                 } catch {
-                  // Handled or cancelled
+                  // The dialog was cancelled or the export failed; the caller
+                  // reports failures through the global toast layer.
                 }
               },
             },
@@ -358,8 +285,6 @@ export const ProjectSidebar: React.FC = () => {
           onClose={() => setNavContextMenu(null)}
         />
       )}
-
-    </aside>
+    </div>
   );
 };
-

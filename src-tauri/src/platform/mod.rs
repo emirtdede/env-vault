@@ -6,6 +6,7 @@ use crate::error::{AppError, AppResult};
 pub mod windows;
 
 pub mod system;
+pub mod terminal;
 
 /// Opens a filesystem path with the operating system's default handler.
 /// Only absolute, existing paths are accepted so a compromised frontend cannot

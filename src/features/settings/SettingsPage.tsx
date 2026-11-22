@@ -8,6 +8,7 @@ import {
   Palette,
   Settings2,
   ShieldCheck,
+  SquareTerminal,
 } from "lucide-react";
 import { useNavigationStore, SettingsSection } from "../../stores/useNavigationStore";
 import { useTranslation } from "../../i18n";
@@ -30,6 +31,7 @@ const NAV_ITEMS: {
   { id: "notifications", labelKey: "settings.navNotifications", icon: Bell },
   { id: "data", labelKey: "settings.navData", icon: Database },
   { id: "accessibility", labelKey: "settings.navAccessibility", icon: Accessibility },
+  { id: "developer", labelKey: "settings.navDeveloper", icon: SquareTerminal },
   { id: "docs", labelKey: "settings.navDocs", icon: BookOpen },
   { id: "about", labelKey: "settings.navAbout", icon: Info },
 ];
@@ -41,6 +43,7 @@ const SECTION_TITLES: Record<SettingsSection, string> = {
   notifications: "settings.navNotifications",
   data: "settings.navData",
   accessibility: "settings.navAccessibility",
+  developer: "settings.navDeveloper",
   docs: "docs.title",
   about: "about.title",
 };
@@ -65,6 +68,18 @@ export const SettingsPage: React.FC = () => {
         return <DataSection />;
       case "accessibility":
         return <AccessibilitySection />;
+      case "developer":
+        return (
+          <section className="card">
+            <div className="card-title">{t("integrations.title")}</div>
+            <p className="card-subtitle">{t("integrations.subtitle")}</p>
+            <div>
+              <Button variant="primary" size="sm" onClick={() => setView("integrations")}>
+                {t("nav.integrations")}
+              </Button>
+            </div>
+          </section>
+        );
       case "docs":
         return (
           <section className="card">

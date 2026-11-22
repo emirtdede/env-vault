@@ -77,6 +77,13 @@ pub struct AppSettings {
     pub notification_sound: bool,
     pub auto_sync_enabled: bool,
     pub onboarding_completed: bool,
+    pub dev_bridge_enabled: bool,
+    pub sidebar_collapsed: bool,
+    pub ai_enabled: bool,
+    pub ai_model: String,
+    pub webhook_enabled: bool,
+    pub webhook_url: String,
+    pub webhook_token: String,
 }
 
 impl Default for AppSettings {
@@ -104,6 +111,13 @@ impl Default for AppSettings {
             notification_sound: true,
             auto_sync_enabled: true,
             onboarding_completed: false,
+            dev_bridge_enabled: false,
+            sidebar_collapsed: false,
+            ai_enabled: false,
+            ai_model: "llama3.2".to_string(),
+            webhook_enabled: false,
+            webhook_url: String::new(),
+            webhook_token: String::new(),
         }
     }
 }

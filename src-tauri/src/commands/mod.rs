@@ -1,5 +1,7 @@
+pub mod ai_commands;
 pub mod backup_commands;
 pub mod cloud_commands;
+pub mod dev_commands;
 pub mod env_commands;
 pub mod export_commands;
 pub mod import_commands;
@@ -9,8 +11,10 @@ pub mod system_commands;
 pub mod vault_commands;
 pub mod window_commands;
 
+pub use ai_commands::*;
 pub use backup_commands::*;
 pub use cloud_commands::*;
+pub use dev_commands::*;
 pub use env_commands::*;
 pub use export_commands::*;
 pub use import_commands::*;

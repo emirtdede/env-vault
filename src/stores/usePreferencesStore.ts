@@ -46,6 +46,13 @@ export const defaultSettings: AppSettings = {
   notificationSound: true,
   autoSyncEnabled: true,
   onboardingCompleted: false,
+  devBridgeEnabled: false,
+  sidebarCollapsed: false,
+  aiEnabled: false,
+  aiModel: "llama3.2",
+  webhookEnabled: false,
+  webhookUrl: "",
+  webhookToken: "",
 };
 
 export { detectSystemLanguage };
@@ -75,6 +82,13 @@ export function toSettingsPayload(state: AppSettings): AppSettings {
     notificationSound: state.notificationSound,
     autoSyncEnabled: state.autoSyncEnabled,
     onboardingCompleted: state.onboardingCompleted,
+    devBridgeEnabled: state.devBridgeEnabled,
+    sidebarCollapsed: state.sidebarCollapsed,
+    aiEnabled: state.aiEnabled,
+    aiModel: state.aiModel,
+    webhookEnabled: state.webhookEnabled,
+    webhookUrl: state.webhookUrl,
+    webhookToken: state.webhookToken,
   };
 }
 

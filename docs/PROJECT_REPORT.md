@@ -19,11 +19,13 @@ deleting a repository or an accidental `.env` cleanup no longer destroys the onl
 copy of a production secret.
 
 Version 1.0.0 is the first corporate-grade release. It adds a complete desktop
-shell (dual navigation rails, full-page settings, documentation, support and
-about), a 73-language interface with right-to-left support, four application icon
-packs, a serverless zero-cost cloud sync layer, Windows integration (tray, global
-hotkey, jump list, start with Windows), and a reproducible NSIS installer with a
-language selector.
+shell (one collapsible edge sidebar plus a second navigation pane per view,
+floating window controls, full-page settings, documentation, support and about),
+an in-app assistant, developer integrations (MCP server, CLI, terminal, signed
+webhooks and an optional local model), a 73-language interface with right-to-left
+support, four application icon packs, a serverless zero-cost cloud sync layer,
+Windows integration (tray, global hotkey, jump list, start with Windows), and a
+reproducible NSIS installer with a language selector.
 
 The product ships with no telemetry, no analytics, no remote account, and no
 network dependency for its core features.
@@ -49,10 +51,15 @@ network dependency for its core features.
 
 ### 2.2 Desktop Shell
 
-- Custom title bar with drag region, window controls and quick theme picker.
-- Collapsible primary navigation rail: vault, settings, documentation, support, about.
-- Secondary project sidebar with search, favorites and context actions.
-- Full-page settings shell with its own section navigation.
+- Frameless window with a floating three-button group (minimize, maximize or
+  restore, close) pinned to the top right above every layer.
+- Single collapsible edge sidebar with the Vellium brand header acting as the
+  drag region, six destinations and a footer with lock, GitHub, Sponsor and the
+  collapse toggle. The collapsed state persists across launches.
+- Two-level navigation: each view owns a second pane. Vault shows projects,
+  Settings shows sections, Documentation shows chapters, About shows legal
+  topics, Assistant keeps its thread list and Integrations its five topics.
+- Full-page settings shell with its own section navigation and no top bar.
 - Toast host, confirmation dialogs, close action dialog and restore prompt banner.
 - Keyboard shortcuts: `Ctrl+N`, `Ctrl+O`, `Ctrl+L`, `Ctrl+S`, `Ctrl+F`, `Ctrl+,`.
 - Global shortcut `Ctrl+Alt+N` to show and focus the window.
@@ -97,6 +104,30 @@ that a consumer cloud client already synchronizes:
 The snapshot contains the encrypted vault blob and a preference snapshot. No
 plaintext secret, master password or derived key is ever written to the cloud.
 
+### 2.6 Assistant and Local Intelligence
+
+- In-app assistant answers questions such as "bring me the env file of my
+  project" from a deterministic intent engine that needs no model.
+- Answers list matching projects, files and key names. Values stay masked as
+  `KEY=<hidden>` unless the user names a specific document.
+- Optional local AI through an Ollama bridge on `127.0.0.1:11434`. Off by
+  default, activatable and removable from the Integrations page, and gated on
+  the machine having enough memory for the selected model.
+- The local search index holds document metadata only: project, filename, key
+  names and timestamps. Values are never indexed.
+
+### 2.7 Developer Integrations
+
+- MCP server and CLI over a loopback-only bridge: ephemeral port, a random
+  64-hex bearer token stored in `%LOCALAPPDATA%\EnvVault\bridge.json`,
+  constant-time comparison, and answers only while the vault is unlocked.
+- Zero-dependency Node CLI embedded in the binary and materialized on demand.
+- Terminal launcher that opens the user's shell in the project folder.
+- Webhooks post a signed, secret-free event to a user-owned URL with an
+  optional `X-EnvVault-Token` header. Delivery is off by default.
+- Everything in this section is off by default and visible only in the
+  Integrations page.
+
 ---
 
 ## 3. Architecture
@@ -121,24 +152,29 @@ src/
   app/                 Application shell and effects
   components/          Layout, brand and primitives
   features/            Vault, projects, env documents, editor, import,
-                       backup, onboarding, settings, docs, support, about, cloud
+                       backup, onboarding, settings, docs, support, about, cloud,
+                       assistant, integrations
   hooks/               Shared UI flows
   i18n/                Dictionaries, locale catalog, lazy loader
-  lib/                 Theme engine, settings sync, cloud autosync, Tauri APIs
+  lib/                 Theme engine, settings sync, cloud autosync, assistant
+                       engine and index, Tauri APIs
   stores/              Zustand domain and preference stores
   styles/              Tokens, themes, shell and component styles
 src-tauri/
+  src/ai/              Ollama status, generate, pull and remove, webhook sender
   src/backup/          Portable backup format and service
+  src/bridge/          Loopback MCP and CLI bridge with bearer tokens
   src/cloud/           Cloud detection, snapshot, rotation and recovery
   src/commands/        Tauri command surface
   src/crypto/          KDF, cipher, random and zeroization
   src/env/             Encoding detection and dotenv parser
   src/export/          Export strategies
   src/import/          Import strategies
-  src/platform/        Windows startup, icons, jump list, DPAPI, drag and drop
+  src/platform/        Windows startup, icons, jump list, DPAPI, terminal, drag and drop
   src/settings/        Settings model and service
   src/vault/           Encrypted repository, session and service
-scripts/               Quality gates, locale generation, icon generation
+cli/                   Embedded zero-dependency Node CLI
+scripts/               Quality gates, locale generation, icon generation, screenshots
 .github/workflows/     Continuous integration
 docs/                  Screenshots and audit reports
 ```
@@ -160,7 +196,7 @@ Views are gated by vault state:
 - `uninitialized`: vault creation screen, with onboarding overlay.
 - `locked`: unlock screen.
 - `error`: recoverable error state with refresh.
-- `unlocked`: navigation rail plus the selected view.
+- `unlocked`: the edge sidebar plus the selected view and its second pane.
 
 ### 3.4 Native Composition
 
@@ -212,10 +248,11 @@ Parity is enforced by `scripts/check-i18n-keys.mjs`: 573 keys across 73 locales.
 | Gate | Command | Result |
 | --- | --- | --- |
 | TypeScript | `npm run typecheck` | Pass |
-| Unit tests | `npm test` | 19 tests, 6 files |
-| Rust tests | `cargo test` | 29 unit tests, 4 integration tests |
+| Unit tests | `npm test` | 40 tests, 8 files |
+| Rust tests | `cargo test` | 41 unit tests, 4 integration tests |
 | Production build | `npm run build` | Pass |
-| i18n parity | `npm run check:i18n` | 573 keys, 73 locales |
+| i18n parity | `npm run check:i18n` | 650 keys, 73 locales |
+| i18n usage | `npm run check:i18n:usage` | Every literal key exists |
 | Typography | `npm run check:typography` | No long dashes, no emoji |
 | Version consistency | `node scripts/check-version-consistency.js` | 1.0.0 everywhere |
 | Installer | `npx tauri build --bundles nsis` | `Env Vault_1.0.0_x64-setup.exe` |
@@ -226,6 +263,38 @@ Continuous integration runs the frontend gates on Ubuntu and the Rust tests on
 ---
 
 ## 6. Screenshots
+
+Every image is captured from the running interface. The window screens are
+rendered from the components the application renders; onboarding steps are the
+real four-step flow.
+
+### Vault
+
+![Vault](./screenshots/vault.png)
+
+### Assistant
+
+![Assistant](./screenshots/assistant.png)
+
+### Integrations - MCP Server
+
+![Integrations MCP](./screenshots/integrations-mcp.png)
+
+### Integrations - Command Line
+
+![Integrations CLI](./screenshots/integrations-cli.png)
+
+### Integrations - Webhooks
+
+![Integrations webhooks](./screenshots/integrations-webhook.png)
+
+### Integrations - Local AI
+
+![Integrations local AI](./screenshots/integrations-ai.png)
+
+### Integrations - Local Search (RAG)
+
+![Integrations local search](./screenshots/integrations-search.png)
 
 ### Settings - General
 
@@ -251,6 +320,10 @@ Continuous integration runs the frontend gates on Ubuntu and the Rust tests on
 
 ![Settings accessibility](./screenshots/settings-accessibility.png)
 
+### Settings - Developer
+
+![Settings developer](./screenshots/settings-developer.png)
+
 ### Documentation
 
 ![Documentation](./screenshots/docs.png)
@@ -263,9 +336,21 @@ Continuous integration runs the frontend gates on Ubuntu and the Rust tests on
 
 ![About](./screenshots/about.png)
 
-### Onboarding
+### Onboarding - Language
 
-![Onboarding](./screenshots/onboarding.png)
+![Onboarding language](./screenshots/onboarding-language.png)
+
+### Onboarding - Theme
+
+![Onboarding theme](./screenshots/onboarding-theme.png)
+
+### Onboarding - Welcome
+
+![Onboarding welcome](./screenshots/onboarding-welcome.png)
+
+### Onboarding - Tour
+
+![Onboarding tour](./screenshots/onboarding-tour.png)
 
 ### Vault Setup
 
@@ -282,10 +367,23 @@ Continuous integration runs the frontend gates on Ubuntu and the Rust tests on
 - Additional target: MSI (`en-US`)
 - Bundle icons: 13 sizes, including NSIS header and sidebar bitmaps
 - Installer output: `src-tauri/target/release/bundle/nsis/Env Vault_1.0.0_x64-setup.exe`
-- Installer size: approximately 4.0 MiB
+- Installer size: approximately 5.1 MiB
+- Installer customization (`src-tauri/installer-hooks.nsh`): the install step
+  prepares `%LOCALAPPDATA%\EnvVault`, and the uninstall step removes the
+  run-at-startup entry and asks once, defaulting to No, whether to delete the
+  local vault. Nothing is ever removed silently.
 - The winget manifests for `Vellium.EnvVault` live in `packaging/winget` and pass
   `winget validate`. Submission to `microsoft/winget-pkgs` is a manual PR step
   after the release asset is published.
+
+### 7.1 Reproducible verification scripts
+
+| Script | What it proves |
+| --- | --- |
+| `scripts/capture-screenshots.ps1` | Walks onboarding and the setup screen with silent `PrintWindow` capture, never raising the window. |
+| `scripts/smoke-bridge.ps1` | Starts the release build with the bridge enabled and asserts that an anonymous request and a wrong token both return 401 while a valid token returns the status document. It also runs `envvault.mjs status`. |
+| `scripts/check-i18n-usage.mjs` | Fails when a literal `t("...")` key is not authored in English. |
+| `scripts/check-typography.mjs` | Fails on em dashes, en dashes or emoji. |
 
 ---
 

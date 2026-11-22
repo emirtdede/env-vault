@@ -113,8 +113,18 @@ Core operation is fully offline: no account, no telemetry, no external API and n
 - Format or reinstall detection offers a restore dialog with `Restore` and `Start Fresh`.
 - Changes are debounced (300 ms) and flushed on exit.
 
+### Assistant and Developer Integrations
+- **In-app assistant** answers plain questions such as "bring me the env file of Atlas API" without any model: a deterministic intent engine returns the project, its files and the matching key names. Values stay masked unless the user opens a specific file.
+- **Optional local AI** through an Ollama bridge on `127.0.0.1:11434`, off by default, downloadable and removable from the app.
+- **Metadata-only local search (RAG)**: project names, filenames and key names are indexed; secret values never are.
+- **MCP server and CLI** over a loopback-only bridge with an ephemeral port and a random 64-hex bearer token in `%LOCALAPPDATA%\EnvVault\bridge.json`; it only answers while the vault is unlocked.
+- **Terminal launcher** that opens the user's shell in the project folder.
+- **Signed webhooks** that post a secret-free event to a user-owned URL with an optional `X-EnvVault-Token` header.
+
 ### Settings, Documentation and Support
-- Full-page Settings with dedicated panes: General, Appearance &amp; Language, Security, Notifications &amp; Sound, Data &amp; Backup, Accessibility, Documentation, About &amp; Legal.
+- Two-level navigation: one collapsible edge sidebar plus a second pane inside each view (projects, settings sections, documentation chapters, legal topics, integrations topics).
+- Frameless window with floating minimize, maximize and close buttons that stay reachable above every overlay.
+- Full-page Settings with dedicated panes: General, Appearance &amp; Language, Security, Notifications &amp; Sound, Data &amp; Backup, Accessibility, Developer, Documentation, About &amp; Legal.
 - In-app Documentation center covering quick start, vault model, cloud sync, shortcuts and troubleshooting.
 - Diagnostics page that copies a redacted system summary for support requests.
 - GitHub, sponsor and website links, plus the legal set: privacy policy, terms of service, cryptography disclosure and open-source licenses.
@@ -125,12 +135,16 @@ Core operation is fully offline: no account, no telemetry, no external API and n
 
 | Setting | Preview |
 | --- | --- |
+| Vault | ![Vault](docs/screenshots/vault.png) |
+| Assistant | ![Assistant](docs/screenshots/assistant.png) |
+| Integrations - MCP | ![Integrations MCP](docs/screenshots/integrations-mcp.png) |
+| Integrations - Local AI | ![Integrations local AI](docs/screenshots/integrations-ai.png) |
 | General | ![General settings](docs/screenshots/settings-general.png) |
 | Appearance &amp; Language | ![Appearance settings](docs/screenshots/settings-appearance.png) |
 | Security | ![Security settings](docs/screenshots/settings-security.png) |
 | Data &amp; Cloud Backup | ![Data and cloud settings](docs/screenshots/settings-data.png) |
 | Accessibility | ![Accessibility settings](docs/screenshots/settings-accessibility.png) |
-| Onboarding | ![Onboarding](docs/screenshots/onboarding.png) |
+| Onboarding | ![Onboarding](docs/screenshots/onboarding-welcome.png) |
 | Documentation | ![Documentation](docs/screenshots/docs.png) |
 | About &amp; Legal | ![About](docs/screenshots/about.png) |
 

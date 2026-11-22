@@ -17,6 +17,7 @@ import { useTranslation } from "../../i18n";
 import { Button } from "../../components/primitives/Button";
 import { usePreferencesStore } from "../../stores/usePreferencesStore";
 import { persistSettingsPatch } from "../../lib/settings-sync";
+import { systemApi } from "../../lib/tauri/system-api";
 import {
   DARK_THEMES,
   LIGHT_THEMES,
@@ -25,7 +26,18 @@ import {
   isValidHex,
   normalizeHex,
 } from "../../lib/theme";
-import { BuiltInTheme } from "../../types";
+import { AppIconTheme, BuiltInTheme } from "../../types";
+import iconObsidian from "../../assets/icons/icon-obsidian.png";
+import iconPorcelain from "../../assets/icons/icon-porcelain.png";
+import iconContrast from "../../assets/icons/icon-contrast.png";
+import iconCyan from "../../assets/icons/icon-cyan.png";
+
+const ICONS: { id: AppIconTheme; labelKey: string; source: string }[] = [
+  { id: "obsidian", labelKey: "settings.iconDark", source: iconObsidian },
+  { id: "porcelain", labelKey: "settings.iconLight", source: iconPorcelain },
+  { id: "contrast", labelKey: "settings.iconContrast", source: iconContrast },
+  { id: "cyan", labelKey: "settings.iconCyan", source: iconCyan },
+];
 
 interface OnboardingProps {
   onComplete: () => void;
@@ -38,6 +50,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
   const { t, language, setLanguage, languages } = useTranslation();
   const theme = usePreferencesStore((state) => state.theme);
   const customAccent = usePreferencesStore((state) => state.customAccent);
+  const iconTheme = usePreferencesStore((state) => state.iconTheme);
   const [stepIndex, setStepIndex] = useState(0);
   const [query, setQuery] = useState("");
   const [colorDraft, setColorDraft] = useState(customAccent);
@@ -66,6 +79,16 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
 
   const next = () => setStepIndex((index) => Math.min(STEPS.length - 1, index + 1));
   const back = () => setStepIndex((index) => Math.max(0, index - 1));
+
+  const selectIcon = async (icon: AppIconTheme) => {
+    try {
+      await systemApi.applyIcon(icon);
+      await persistSettingsPatch({ iconTheme: icon });
+    } catch {
+      // The icon pack could not be applied; the theme step stays usable and
+      // the failure is reported from Settings later.
+    }
+  };
 
   const applyColor = async () => {
     if (!isValidHex(colorDraft)) {
@@ -257,6 +280,25 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                   </Button>
                 </div>
                 {colorError && <p className="form-error">{colorError}</p>}
+              </div>
+
+              <div className="stack-sm">
+                <div className="section-title">{t("settings.appIconTitle")}</div>
+                <div className="icon-grid">
+                  {ICONS.map((icon) => (
+                    <button
+                      key={icon.id}
+                      type="button"
+                      className={`icon-option${iconTheme === icon.id ? " is-selected" : ""}`}
+                      onClick={() => void selectIcon(icon.id)}
+                      aria-pressed={iconTheme === icon.id}
+                    >
+                      <img className="icon-preview" src={icon.source} alt="" aria-hidden />
+                      <span className="theme-option-label">{t(icon.labelKey)}</span>
+                      {iconTheme === icon.id && <Check size={14} aria-hidden />}
+                    </button>
+                  ))}
+                </div>
               </div>
             </>
           )}

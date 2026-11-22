@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-export type AppView = "vault" | "settings" | "docs" | "support" | "about";
+export type AppView = "vault" | "assistant" | "integrations" | "settings" | "docs" | "support" | "about";
 
 export type SettingsSection =
   | "general"
@@ -9,6 +9,7 @@ export type SettingsSection =
   | "notifications"
   | "data"
   | "accessibility"
+  | "developer"
   | "docs"
   | "about";
 

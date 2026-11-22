@@ -18,8 +18,9 @@
     "typecheck": "tsc --noEmit",
     "check:version": "node scripts/check-version-consistency.js",
     "check:i18n": "node scripts/check-i18n-keys.mjs",
+    "check:i18n:usage": "node scripts/check-i18n-usage.mjs",
     "check:typography": "node scripts/check-typography.mjs",
-    "verify": "npm run check:version && npm run check:i18n && npm run check:typography && npm run typecheck && npm test",
+    "verify": "npm run check:version && npm run check:i18n && npm run check:i18n:usage && npm run check:typography && npm run typecheck && npm test",
     "tauri": "tauri",
     "build:app": "npm run build && npx @tauri-apps/cli build",
     "build:portable": "npm run build && npx @tauri-apps/cli build --no-bundle"

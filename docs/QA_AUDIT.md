@@ -1,9 +1,12 @@
-# Env Vault - Pre-Deployment QA and Architecture Audit
+﻿# Env Vault - Pre-Deployment QA and Architecture Audit
 
 **Version audited:** 1.0.0
 **Audit date:** 22 November 2026
 **Auditor:** Engineering QA pass (automated scans plus manual code review)
 **Result:** PASS - zero open findings
+
+> The gate numbers in sections 1 to 6 describe loops 1 to 4. Section 8 carries
+> the current results after the interface rebuild in loop 5.
 
 ---
 
@@ -658,3 +661,57 @@ defects.
 All findings from loops 1 and 2 were fixed and verified in loop 3. The final scan,
 build and test run produced zero open findings and zero failing gates. Env Vault
 1.0.0 is cleared for public release.
+
+---
+
+## 8. Loop 5 - Interface rebuild, assistant and integrations
+
+Loop 5 responded to the two-level navigation reference: a single edge sidebar,
+a floating three-button window group, softer motion and a second navigation pane
+for Settings, Documentation, About, Assistant and Integrations. The top bar was
+removed completely.
+
+### 8.1 Findings and fixes
+
+| ID | Severity | Finding | Fix | State |
+| --- | --- | --- | --- | --- |
+| L5-01 | High | With the top bar gone, the floating window controls (z-index 9000) covered the close button of full-screen overlays (z-index 2000-2100). | Every overlay returns to `inset: 0` but reserves `--chrome-height` at the top; onboarding and legal panels also cap their height. | Closed |
+| L5-02 | High | Removing `TitleBar` and `NavRail` left orphaned modules that broke `dev-preview.tsx` and the production typecheck. | Both components and their test were deleted; the preview harness renders the real shell. | Closed |
+| L5-03 | Medium | The old tests asserted the removed title bar, so the suite failed for the wrong reason. | `App.test.tsx` and `AppSidebar.test.tsx` now assert the frameless shell, the three controls, the drag region and every destination. | Closed |
+| L5-04 | Medium | The locale generator stored an empty string whenever the translation endpoint answered with an empty segment, which is how seven Hebrew keys reached the shipped JSON. | The generator keeps the English source for an empty answer and the poisoned cache entries were purged. | Closed |
+| L5-05 | High | The local AI bridge accepted `../../etc/passwd` as a model name because the character filter allowed dots and slashes. | `valid_model_name` rejects `..`, a leading `/` and a leading `.`; a unit test covers the traversal case. | Closed |
+| L5-06 | Medium | Assistant failures surfaced a raw English string inside a localised interface. | The engine returns typed codes (`read-failed`, `ai-failed`) that the view maps through i18n. | Closed |
+| L5-07 | Low | A second Developer settings section duplicated the new Integrations page. | Consolidated into one Integrations view; Settings links to it, no duplicated code remains. | Closed |
+| L5-08 | Medium | Solid 6 px scrollbars sat on top of content in narrow panes. | Scrollbars are 8 px with a transparent track and a translucent thumb that only appears while hovering the scrollable area. | Closed |
+| L5-09 | Low | `ProjectHeader` kept the old padding, so its title sat under the drag strip. | Header padding starts at `calc(var(--chrome-height) + 6px)`. | Closed |
+| L5-10 | High | Webhook delivery could be pointed at any URL, including one with embedded credentials. | URL validation requires an absolute http(s) URL, rejects `@` and whitespace, caps the length, and delivery is gated behind the settings toggle plus a signed header. | Closed |
+| L5-11 | Medium | Rust command code used `AppError::Internal`/`Validation`, which do not exist in the error enum. | Replaced with `AppError::Custom`, which serialises to `CUSTOM_ERROR` without leaking internals. | Closed |
+| L5-12 | Low | Vault view rendered project navigation twice (rail plus sidebar). | Projects render once, in the vault's own secondary pane, exactly like Settings. | Closed |
+| L5-13 | High | Every assistant search used `toLocaleLowerCase`, so on a Turkish Windows install `STRIPE_KEY` folded to `strÄ±pe_key` and no query ever matched. | Matching now uses locale-independent `toLowerCase` through a single `fold` helper; a regression test asserts ASCII folding. | Closed |
+| L5-14 | Medium | The assistant surfaced three separate hard-coded English errors. | The engine returns typed codes only; the view translates `readError` and `aiError` from the locale dictionaries. | Closed |
+| L5-15 | Low | `IntegrationsPage` referenced `integrations.*` labels that did not exist, so raw keys could render. | Labels point at the authored `developer.*` keys, and `scripts/check-i18n-usage.mjs` now fails the build on any unknown literal key. | Closed |
+| L5-16 | Critical | The bridge listener is non-blocking so the accept loop can poll the stop flag, but on Windows an accepted socket inherits that mode. Every read and write would have failed instantly, making MCP and the CLI unreachable. | `serve` switches the accepted stream back to blocking before applying read and write timeouts. | Closed |
+| L5-17 | Medium | Bridge error payloads serialised `AppError::Crypto` verbatim, exposing algorithm detail over the socket. | `error_payload` substitutes a curated message for cryptographic failures and a unit test asserts the detail never appears. | Closed |
+
+### 8.2 New surface reviewed
+
+- `src/components/layout/AppSidebar.tsx`: brand header with `data-tauri-drag-region="deep"`, six destinations, footer with lock, GitHub, Sponsor and the collapse toggle persisted through `sidebarCollapsed`.
+- `src/components/layout/WindowControls.tsx`: minimise, maximise/restore and close, honouring `closeAction` (`minimize-to-tray`, `close-app`, or the ask dialog).
+- `src/features/assistant/AssistantPage.tsx` with `src/lib/assistant/engine.ts` and `rag.ts`: deterministic answers first, optional local model second, values only on explicit file requests.
+- `src/features/integrations/IntegrationsPage.tsx`: MCP bridge, CLI, webhooks, local AI and the RAG index in five sub-views.
+- `src-tauri/src/ai/mod.rs` and `commands/ai_commands.rs`: loopback-only Ollama bridge, model pull/remove, webhook sender, all blocking work on `spawn_blocking`.
+- `src-tauri/installer-hooks.nsh`: post-install data folder, opt-in data removal on uninstall, startup entry cleanup.
+
+### 8.3 Gate results after loop 5
+
+| Gate | Result |
+| --- | --- |
+| `npm run typecheck` | 0 errors |
+| `npm test` | 8 files, 40 tests passed |
+| `cargo test` | 43 unit tests plus 4 integration tests passed |
+| `node scripts/check-i18n-keys.mjs` | 650 keys, 73 locales |
+| `node scripts/check-i18n-usage.mjs` | 96 files, 650 literal keys resolve |
+| `node scripts/check-typography.mjs` | Pass |
+| `node scripts/check-version-consistency.js` | Pass, 1.0.0 everywhere |
+
+No high severity finding remains open.

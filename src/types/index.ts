@@ -94,6 +94,13 @@ export interface AppSettings {
   notificationSound: boolean;
   autoSyncEnabled: boolean;
   onboardingCompleted: boolean;
+  devBridgeEnabled: boolean;
+  sidebarCollapsed: boolean;
+  aiEnabled: boolean;
+  aiModel: string;
+  webhookEnabled: boolean;
+  webhookUrl: string;
+  webhookToken: string;
 }
 
 export interface ImportResult {

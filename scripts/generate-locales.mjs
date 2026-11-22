@@ -170,7 +170,11 @@ async function buildLocale(target, enEntries, cache) {
     const batch = work[i];
     const translated = await translateBatch(batch, target);
     batch.forEach((source, index) => {
-      dictionary[source] = translated[index] ?? source;
+      const value = translated[index];
+      // The public endpoint occasionally answers with an empty string for a
+      // single segment; keep the English source rather than shipping a blank.
+      dictionary[source] =
+        typeof value === "string" && value.trim().length > 0 ? value : source;
     });
     fs.writeFileSync(cacheFile, JSON.stringify(cache));
     if (i % 10 === 0) console.log(` ${target}: ${i + 1}/${work.length} batches`);

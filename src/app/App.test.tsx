@@ -12,26 +12,32 @@ describe("App shell", () => {
       language: "en",
     });
     useRestorePromptStore.setState({ proposal: null, dismissed: true });
-    useVaultSessionStore.setState({ state: "uninitialized", isLoading: false });
+    useVaultSessionStore.setState({
+      state: "uninitialized",
+      isLoading: false,
+      fetchState: async () => "uninitialized" as const,
+    });
   });
 
-  it("renders the application root and title bar controls", () => {
+  it("renders the frameless shell with window controls and no title bar", async () => {
     render(<App />);
-    expect(screen.getByTestId("app-root")).toBeInTheDocument();
-    expect(screen.getByLabelText("Settings")).toBeInTheDocument();
-    expect(screen.getByLabelText("Language")).toBeInTheDocument();
+    expect(await screen.findByTestId("app-root")).toBeInTheDocument();
+    expect(await screen.findByLabelText("Minimize")).toBeInTheDocument();
+    expect(screen.getByLabelText("Maximize")).toBeInTheDocument();
+    expect(screen.getByLabelText("Close")).toBeInTheDocument();
+    expect(document.querySelector(".titlebar")).toBeNull();
   });
 
-  it("renders the master password screen when the vault is uninitialized", () => {
+  it("renders the master password screen when the vault is uninitialized", async () => {
     render(<App />);
-    expect(screen.getByText("1. Set Master Password")).toBeInTheDocument();
+    expect(await screen.findByText("1. Set Master Password")).toBeInTheDocument();
     expect(screen.getByLabelText("Master Password")).toBeInTheDocument();
   });
 
-  it("renders the lock screen when the vault is locked", () => {
+  it("renders the lock screen when the vault is locked", async () => {
     useVaultSessionStore.setState({ state: "locked", isLoading: false });
     render(<App />);
-    expect(screen.getByTestId("app-root")).toBeInTheDocument();
-    expect(screen.getByLabelText("Master Password")).toBeInTheDocument();
+    expect(await screen.findByTestId("app-root")).toBeInTheDocument();
+    expect(await screen.findByLabelText("Master Password")).toBeInTheDocument();
   });
 });

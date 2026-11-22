@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=https://aka.ms/winget-manifest.installer.1.10.0.schema.json
+﻿# yaml-language-server: $schema=https://aka.ms/winget-manifest.installer.1.10.0.schema.json
 PackageIdentifier: Vellium.EnvVault
 PackageVersion: 1.0.0
 InstallerLocale: en-US
@@ -14,7 +14,7 @@ UpgradeBehavior: install
 Installers:
 - Architecture: x64
   InstallerUrl: https://github.com/emirtdede/env-vault/releases/download/1.0.0/Env-Vault_1.0.0_x64-setup.exe
-  InstallerSha256: 9FC0B3B092114CCE6D30F990AD71638EB2A7F49D5D40D0DC122C258A027C8418
+  InstallerSha256: 9C2887CE79FF482179B54733F00503D02E74681B53CD99E1EFB885965C4BB495
   InstallerSwitches:
     Silent: /S
 ManifestType: installer

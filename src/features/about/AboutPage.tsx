@@ -60,8 +60,46 @@ export const AboutPage: React.FC = () => {
 
   return (
     <div className="page" data-testid="about-page">
+      <aside className="settings-sidebar" aria-label={t("nav.about")}>
+        <div className="docs-nav-title">
+          <Info size={15} aria-hidden />
+          {t("nav.about")}
+        </div>
+        <a className="settings-nav-item" href="#about-overview">
+          <Sparkles size={15} aria-hidden />
+          <span>{t("about.title")}</span>
+        </a>
+        <button type="button" className="settings-nav-item" onClick={() => openExternalUrl(WEBSITE_URL)}>
+          <ExternalLink size={15} aria-hidden />
+          <span>{t("about.websiteLabel")}</span>
+        </button>
+        <button type="button" className="settings-nav-item" onClick={() => openExternalUrl(REPOSITORY_URL)}>
+          <GitBranch size={15} aria-hidden />
+          <span>{t("about.githubLabel")}</span>
+        </button>
+        <button type="button" className="settings-nav-item" onClick={() => openExternalUrl(SPONSOR_URL)}>
+          <Heart size={15} aria-hidden />
+          <span>{t("about.sponsorLabel")}</span>
+        </button>
+        <div className="docs-nav-title" style={{ paddingTop: 14 }}>
+          <Scale size={15} aria-hidden />
+          {t("about.legalTitle")}
+        </div>
+        {LEGAL_ITEMS.map(({ id, labelKey, icon: Icon }) => (
+          <button
+            key={id}
+            type="button"
+            className="settings-nav-item"
+            onClick={() => setLegal(id)}
+          >
+            <Icon size={15} aria-hidden />
+            <span>{t(labelKey)}</span>
+          </button>
+        ))}
+      </aside>
+
       <div className="page-main">
-        <div className="page-inner">
+        <div className="page-inner" id="about-overview">
           <section className="about-hero">
             <Logo size={56} showText={false} />
             <div>

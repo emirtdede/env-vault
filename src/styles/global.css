@@ -24,16 +24,20 @@ html, body {
 }
 
 #root {
-  width: 100%;
-  height: 100%;
+  /* Zoom scales the UI without clipping: the box is divided by the same
+     factor so the rendered shell always fills the viewport exactly. */
+  width: calc(100% / var(--ui-scale, 1));
+  height: calc(100% / var(--ui-scale, 1));
+  zoom: var(--ui-scale, 1);
   display: flex;
   flex-direction: column;
 }
 
-/* Scrollbar Customization */
+/* Scrollbar Customization: a hairline, translucent thumb that only becomes
+   solid while the pointer is over the scrollable area. */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
@@ -41,12 +45,24 @@ html, body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--border);
+  background: transparent;
+  border: 2px solid transparent;
+  background-clip: content-box;
   border-radius: var(--radius-full);
+}
+
+*:hover::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--text-tertiary) 40%, transparent);
+  background-clip: content-box;
 }
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--text-tertiary);
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
 }
 
 /* Accessible Focus States */
@@ -104,6 +120,17 @@ input, textarea {
   from {
     opacity: 0;
     transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes viewIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
   }
   to {
     opacity: 1;

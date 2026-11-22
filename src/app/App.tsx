@@ -15,14 +15,15 @@ import { RTL_LANGUAGES } from "../i18n";
 import { applyTheme, applyUiScale, resolveDisplayTheme } from "../lib/theme";
 import { toastOnCloudChange } from "../lib/cloud-autosync";
 
-import { TitleBar } from "../components/layout/TitleBar";
-import { NavRail } from "../components/layout/NavRail";
+import { AppSidebar } from "../components/layout/AppSidebar";
+import { WindowControls } from "../components/layout/WindowControls";
+import { Logo } from "../components/brand/Logo";
 import { ToastHost } from "../components/layout/ToastHost";
 import { WindowResizeHandles } from "../components/layout/WindowResizeHandles";
 import { VaultSetup } from "../features/vault/VaultSetup";
 import { VaultLockScreen } from "../features/vault/VaultLockScreen";
-import { ProjectSidebar } from "../features/projects/ProjectSidebar";
 import { ProjectHeader } from "../features/projects/ProjectHeader";
+import { ProjectList } from "../features/projects/ProjectSidebar";
 import { CreateProjectModal } from "../features/projects/CreateProjectModal";
 import { EditProjectModal } from "../features/projects/EditProjectModal";
 import { EnvDocumentList } from "../features/env-documents/EnvDocumentList";
@@ -38,6 +39,8 @@ import { ConfirmDialog } from "../components/primitives/ConfirmDialog";
 import { Onboarding } from "../features/onboarding/Onboarding";
 import { SettingsPage } from "../features/settings/SettingsPage";
 import { DocsPage } from "../features/docs/DocsPage";
+import { AssistantPage } from "../features/assistant/AssistantPage";
+import { IntegrationsPage } from "../features/integrations/IntegrationsPage";
 import { SupportPage } from "../features/support/SupportPage";
 import { AboutPage } from "../features/about/AboutPage";
 import { CloudRestoreBanner } from "../features/cloud/CloudRestoreBanner";
@@ -232,51 +235,64 @@ export const App: React.FC = () => {
   return (
     <div className="app-shell" data-testid="app-root">
       <WindowResizeHandles />
-      <TitleBar />
+      <WindowControls />
 
-      <div className="app-body">
-        {vaultState === "uninitialized" && <VaultSetup />}
-        {vaultState === "locked" && <VaultLockScreen />}
-        {vaultState === "error" && (
-          <div className="center-state">
-            <div className="stack-sm" style={{ maxWidth: 420, textAlign: "center" }}>
-              <h2 className="page-title">{t("common.error")}</h2>
-              <p className="muted">{t("common.error")}</p>
-              <button
-                type="button"
-                className="link"
-                onClick={() => void fetchVaultState()}
-              >
-                {t("common.refresh")}
-              </button>
-            </div>
-          </div>
-        )}
+      {!settingsLoaded ? (
+        <div className="app-boot">
+          <Logo size={30} showText showBadge={false} />
+        </div>
+      ) : showOnboarding ? (
+        <Onboarding onComplete={() => updateSettings({ onboardingCompleted: true })} />
+      ) : (
+        <>
+          <AppSidebar />
 
-        {vaultState === "unlocked" && (
-          <>
-            <NavRail />
-            {view === "vault" && (
+          <div className="app-main">
+            <div className="app-drag-strip" data-tauri-drag-region />
+
+            {vaultState === "uninitialized" && <VaultSetup />}
+            {vaultState === "locked" && <VaultLockScreen />}
+            {vaultState === "error" && (
+              <div className="center-state">
+                <div className="stack-sm" style={{ maxWidth: 420, textAlign: "center" }}>
+                  <h2 className="page-title">{t("common.error")}</h2>
+                  <p className="muted">{t("common.error")}</p>
+                  <button
+                    type="button"
+                    className="link"
+                    onClick={() => void fetchVaultState()}
+                  >
+                    {t("common.refresh")}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {vaultState === "unlocked" && (
               <>
-                <ProjectSidebar />
-                <main className="page">
-                  <div className="vault-main">
-                    <ProjectHeader />
-                    <EnvDocumentList />
-                  </div>
-                </main>
+                {view === "vault" && (
+                  <>
+                    <main className="page">
+                      <aside className="vault-sidebar" aria-label={t("common.projects")}>
+                        <ProjectList />
+                      </aside>
+                      <div className="vault-main">
+                        <ProjectHeader />
+                        <EnvDocumentList />
+                      </div>
+                    </main>
+                  </>
+                )}
+                {view === "settings" && <SettingsPage />}
+                {view === "assistant" && <AssistantPage />}
+                {view === "integrations" && <IntegrationsPage />}
+                {view === "docs" && <DocsPage />}
+                {view === "support" && <SupportPage />}
+                {view === "about" && <AboutPage />}
               </>
             )}
-            {view === "settings" && <SettingsPage />}
-            {view === "docs" && <DocsPage />}
-            {view === "support" && <SupportPage />}
-            {view === "about" && <AboutPage />}
-          </>
-        )}
-      </div>
-
-      {showOnboarding && (
-        <Onboarding onComplete={() => updateSettings({ onboardingCompleted: true })} />
+          </div>
+        </>
       )}
 
       <CloudRestoreBanner />
