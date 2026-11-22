@@ -59,7 +59,7 @@ network dependency for its core features.
 
 ### 2.3 Appearance and Accessibility
 
-- 14 built-in palettes, split into dark and light families.
+- 16 built-in palettes, split into 8 dark and 8 light families.
 - Empty custom palette entry that accepts any hex color and derives a full,
   contrast-aware token set at runtime.
 - Follow Windows app mode (System / Light / Dark behavior through theme pairing).
