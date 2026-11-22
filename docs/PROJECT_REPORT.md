@@ -283,7 +283,9 @@ Continuous integration runs the frontend gates on Ubuntu and the Rust tests on
 - Bundle icons: 13 sizes, including NSIS header and sidebar bitmaps
 - Installer output: `src-tauri/target/release/bundle/nsis/Env Vault_1.0.0_x64-setup.exe`
 - Installer size: approximately 4.0 MiB
-- A winget manifest can be generated from the release artifact and publisher metadata.
+- The winget manifests for `Vellium.EnvVault` live in `packaging/winget` and pass
+  `winget validate`. Submission to `microsoft/winget-pkgs` is a manual PR step
+  after the release asset is published.
 
 ---
 
