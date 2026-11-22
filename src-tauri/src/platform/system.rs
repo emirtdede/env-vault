@@ -41,16 +41,19 @@ pub fn set_startup(enabled: bool, start_minimized: bool) -> AppResult<()> {
             } else {
                 format!("\"{}\"", exe.display())
             };
-            let status = Command::new("reg")
+            // `output` captures stdout and stderr so a missing key or a policy
+            // block never prints a console error line on startup.
+            let output = Command::new("reg")
                 .args(["add", RUN_KEY, "/v", RUN_VALUE, "/t", "REG_SZ", "/d", &value, "/f"])
-                .status()?;
-            if !status.success() {
+                .output()?;
+            if !output.status.success() {
                 return Err(AppError::Custom("STARTUP_REGISTRATION_FAILED".into()));
             }
         } else {
-            Command::new("reg")
+            // Removing a value that does not exist is an expected, silent no-op.
+            let _ = Command::new("reg")
                 .args(["delete", RUN_KEY, "/v", RUN_VALUE, "/f"])
-                .status()?;
+                .output();
         }
         return Ok(());
     }

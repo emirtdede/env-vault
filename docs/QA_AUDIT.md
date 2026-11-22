@@ -29,9 +29,10 @@ Method:
 5. Review of the close, lock, tray and launch-code paths end to end.
 6. Re-run of every quality gate after each fix batch.
 
-The audit ran in three loops. Loop 1 found structural issues, loop 2 found state
-and lifecycle defects, and loop 3 confirmed that fixes introduced no regressions.
-The final loop produced zero findings.
+The audit ran in four loops. Loop 1 found structural issues, loop 2 found state
+and lifecycle defects, loop 3 confirmed that fixes introduced no regressions, and
+loop 4 re-verified the native startup path during a live application run. The
+final loop produced zero findings.
 
 ---
 
@@ -56,6 +57,7 @@ The final loop produced zero findings.
 | F-15 | Non-English error strings in Rust services | Medium | Fixed |
 | F-16 | Duplicate cloud status CSS blocks | Low | Fixed |
 | F-17 | Accessibility scale applied without clamping review | Low | Verified |
+| F-18 | Startup registry sync printed a console error when the key was absent | Low | Fixed |
 
 ---
 
@@ -519,6 +521,50 @@ document.documentElement.style.setProperty("--ui-scale", String(clamped / 100));
 
 Verified that `#root` divides its own box by the same factor before applying
 `zoom`, so a 200 percent interface fills the window instead of overflowing it.
+
+---
+
+### F-18 - Startup registry sync printed a console error
+
+**File:** `src-tauri/src/platform/system.rs`
+
+`set_startup(false)` used `Command::status()`, which inherits the child streams.
+Disabling an autostart value that did not exist made `reg delete` write
+`ERROR: The system was unable to find the specified registry key or value.` to the
+application console on every launch where the global shortcut was enabled.
+
+Before:
+
+```rust
+let status = Command::new("reg")
+    .args(["add", RUN_KEY, "/v", RUN_VALUE, "/t", "REG_SZ", "/d", &value, "/f"])
+    .status()?;
+if !status.success() {
+    return Err(AppError::Custom("STARTUP_REGISTRATION_FAILED".into()));
+}
+// ...
+Command::new("reg")
+    .args(["delete", RUN_KEY, "/v", RUN_VALUE, "/f"])
+    .status()?;
+```
+
+After:
+
+```rust
+let output = Command::new("reg")
+    .args(["add", RUN_KEY, "/v", RUN_VALUE, "/t", "REG_SZ", "/d", &value, "/f"])
+    .output()?;
+if !output.status.success() {
+    return Err(AppError::Custom("STARTUP_REGISTRATION_FAILED".into()));
+}
+// ...
+let _ = Command::new("reg")
+    .args(["delete", RUN_KEY, "/v", RUN_VALUE, "/f"])
+    .output();
+```
+
+`output()` captures both streams, so a missing value or a group policy block is
+silent, and a failed registration still surfaces as a typed application error.
 
 ---
 
