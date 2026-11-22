@@ -14,7 +14,7 @@ UpgradeBehavior: install
 Installers:
 - Architecture: x64
   InstallerUrl: https://github.com/emirtdede/env-vault/releases/download/1.0.0/Env-Vault_1.0.0_x64-setup.exe
-  InstallerSha256: 0000000000000000000000000000000000000000000000000000000000000000
+  InstallerSha256: 9FC0B3B092114CCE6D30F990AD71638EB2A7F49D5D40D0DC122C258A027C8418
   InstallerSwitches:
     Silent: /S
 ManifestType: installer
